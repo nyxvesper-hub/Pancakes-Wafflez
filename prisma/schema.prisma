@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/**
+ * A menu category. The owner can add / rename / reorder / delete these
+ * via the Admin Sheet — they are NOT hardcoded. MenuItem.category stores
+ * the MenuCategory.key as a soft FK (string match).
+ *
+ * displayOrder controls left-to-right / top-to-bottom rendering on the live page.
+ */
+model MenuCategory {
+  key          String   @id // e.g. "pancakes", "waffles" — used as FK from MenuItem.category
+  labelFr      String   // "Pancakes"
+  labelEn      String   // "Pancakes"
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
+}
+
+/**
+ * A single dish on the Pancakes & Wafflez menu.
+ * - Bilingual fields (fr_* + en_*) so the live site can flip language without joins.
+ * - photoUrl points to the ZAI image-search CDN by default (swappable in the admin sheet).
+ * - category stores the MenuCategory.key — owner-managed via the Categories section
+ *   of the Admin Sheet (NOT hardcoded anymore).
+ * - photoSize controls how the photo thumbnail renders in the menu + gallery:
+ *   "small" | "medium" | "large" | "feature".
+ * - order controls display order inside a category.
+ */
+model MenuItem {
+  id        String   @id @default(cuid())
+  category  String   // = MenuCategory.key
+  order     Int      @default(0)
+
+  nameFr    String
+  nameEn    String
+  descFr    String
+  descEn    String
+  price     Int      // in MAD (Moroccan dirhams), stored as integer to avoid float drift
+  photoUrl  String?
+  photoSize String   @default("small") // small | medium | large | feature
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category, order])
+}
