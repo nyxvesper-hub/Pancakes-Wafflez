@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: false,
   images: {
+    // Allow the ZAI image-search CDN (where we got the food photos) + Unsplash + Pexels as fallbacks.
     remotePatterns: [
       {
         protocol: "https",
