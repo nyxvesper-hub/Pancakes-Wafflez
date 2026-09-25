@@ -145,6 +145,13 @@
 
 /* ---- Custom utility classes ---- */
 @layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
   /* Vintage serif display with optical sizing */
   .font-display {
     font-family: var(--font-fraunces), Georgia, serif;

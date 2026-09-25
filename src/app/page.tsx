@@ -225,7 +225,7 @@ function LangToggle({
   );
 }
 
-/* ---------- Hero ---------- */
+/* ---------- Hero (Scandibakes-style: dark full-bleed, centered giant headline) ---------- */
 function Hero({
   t,
   lang,
@@ -236,114 +236,132 @@ function Hero({
   return (
     <section
       id="top"
-      className="relative overflow-hidden border-b border-border/60 print:hidden"
+      className="relative overflow-hidden bg-primary text-primary-foreground print:hidden"
     >
-      <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 md:gap-10 md:py-24">
-        {/* Left: Text */}
-        <div className="flex flex-col items-start gap-5">
-          {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-500 uppercase tracking-wider text-muted-foreground">
-            <Pin className="h-3.5 w-3.5 text-accent" />
-            <span>{t.hero.eyebrow}</span>
+      {/* Centered text block */}
+      <div className="mx-auto max-w-3xl px-4 pt-14 text-center sm:px-6 sm:pt-20">
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 px-3 py-1 text-xs font-500 uppercase tracking-wider text-primary-foreground/70">
+          <Pin className="h-3.5 w-3.5 text-accent" />
+          <span>{t.hero.eyebrow}</span>
+        </div>
+
+        <h1 className="font-display text-[3rem] leading-[0.92] font-500 sm:text-7xl md:text-[6rem]">
+          <span className="block">{t.hero.title}</span>
+          <span className="block italic text-accent">{t.hero.titleAmp}</span>
+          <span className="block">{t.hero.title2}</span>
+        </h1>
+
+        <p className="mx-auto mt-6 max-w-lg font-sans text-base text-primary-foreground/75 sm:text-lg">
+          {t.hero.tagline}
+        </p>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="#menu"
+            className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground px-5 py-2.5 text-sm font-500 text-primary hover:bg-primary-foreground/90 transition-colors"
+          >
+            <ForkKnife className="h-4 w-4" />
+            <span>{t.hero.cta_primary}</span>
+          </a>
+          <a
+            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${
+              lang === "fr" ? WHATSAPP_MSG_FR : WHATSAPP_MSG_EN
+            }`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-accent bg-accent px-5 py-2.5 text-sm font-500 text-accent-foreground hover:bg-accent/90 transition-colors"
+          >
+            <WhatsAppIcon className="h-4 w-4" />
+            <span>{t.hero.cta_secondary}</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Big photo flanked by ingredient-style spec boxes, like Scandibakes */}
+      <div className="mx-auto max-w-5xl px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-16">
+        <div className="grid items-center gap-4 sm:grid-cols-[9rem_1fr_9rem] sm:gap-6">
+          {/* Left spec box (desktop only) */}
+          <div className="hidden rounded-lg border border-primary-foreground/15 bg-primary-foreground/5 p-4 text-xs text-primary-foreground/70 sm:block">
+            <div className="mb-2 font-600 uppercase tracking-wide text-primary-foreground/90">
+              {lang === "en" ? "Fresh daily" : "Fait maison"}
+            </div>
+            <ul className="space-y-1.5">
+              <li>{lang === "en" ? "Made to order" : "Préparé à la commande"}</li>
+              <li>{lang === "en" ? "House batter" : "Pâte maison"}</li>
+              <li>{lang === "en" ? "Real maple syrup" : "Vrai sirop d'érable"}</li>
+            </ul>
           </div>
 
-          {/* Title lockup */}
-          <h1 className="font-display text-[3.25rem] leading-[0.95] font-500 text-primary sm:text-7xl md:text-[5.5rem]">
-            <span className="block">{t.hero.title}</span>
-            <span className="block italic text-accent/80 pl-6 sm:pl-10 text-[2.25rem] sm:text-5xl md:text-6xl">
-              {t.hero.titleAmp}
-            </span>
-            <span className="block">{t.hero.title2}</span>
-          </h1>
+          <HeroPhoto />
 
-          {/* Tagline */}
-          <p className="max-w-md font-sans text-base text-foreground/80 sm:text-lg">
-            {t.hero.tagline}
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <a
-              href="#menu"
-              className="inline-flex items-center gap-2 rounded-full border border-primary bg-primary px-5 py-2.5 text-sm font-500 text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              <ForkKnife className="h-4 w-4" />
-              <span>{t.hero.cta_primary}</span>
-            </a>
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${
-                lang === "fr" ? WHATSAPP_MSG_FR : WHATSAPP_MSG_EN
-              }`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-accent bg-accent px-5 py-2.5 text-sm font-500 text-accent-foreground hover:bg-accent/90 transition-colors"
-            >
-              <WhatsAppIcon className="h-4 w-4" />
-              <span>{t.hero.cta_secondary}</span>
-            </a>
+          {/* Right spec box (desktop only) */}
+          <div className="hidden rounded-lg border border-primary-foreground/15 bg-primary-foreground/5 p-4 text-xs text-primary-foreground/70 sm:block">
+            <div className="mb-2 font-600 uppercase tracking-wide text-primary-foreground/90">
+              {t.hero.hours_chip}
+            </div>
+            <div className="mb-3">{t.hero.location_chip}</div>
+            <div className="mb-2 font-600 uppercase tracking-wide text-primary-foreground/90">
+              {lang === "en" ? "Order" : "Commander"}
+            </div>
+            <div>WhatsApp</div>
           </div>
 
-          {/* Hours + location chips */}
-          <div className="flex flex-wrap gap-3 pt-3 text-xs">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1 text-muted-foreground">
+          {/* Mobile-only chips (spec boxes hidden below sm) */}
+          <div className="flex flex-wrap justify-center gap-3 text-xs sm:hidden">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary-foreground/20 px-3 py-1 text-primary-foreground/70">
               <Clock className="h-3.5 w-3.5" />
               <span>{t.hero.hours_chip}</span>
             </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1 text-muted-foreground">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary-foreground/20 px-3 py-1 text-primary-foreground/70">
               <Pin className="h-3.5 w-3.5" />
               <span>{t.hero.location_chip}</span>
             </div>
           </div>
         </div>
-
-        {/* Right: Real food photo with vintage treatment */}
-        <div className="relative">
-          <HeroPhoto />
-        </div>
       </div>
 
-      {/* Decorative bottom divider */}
-      <div className="mx-auto flex max-w-6xl items-center justify-center gap-4 px-4 pb-4">
-        <div className="divider-dotted flex-1" />
-        <StarDivider className="h-4 w-4 text-accent/70" />
-        <div className="divider-dotted flex-1" />
+      {/* Decorative bottom divider, transitioning into the cream content below */}
+      <div className="mx-auto flex max-w-6xl items-center justify-center gap-4 px-4 pb-6">
+        <div className="h-px flex-1 bg-primary-foreground/15" />
+        <StarDivider className="h-4 w-4 text-accent" />
+        <div className="h-px flex-1 bg-primary-foreground/15" />
       </div>
     </section>
   );
 }
 
-/* ---------- Hero photo with vintage frame + warm overlay ---------- */
+/* ---------- Hero photo: large rectangular product shot (Scandibakes-style) ---------- */
 function HeroPhoto() {
   return (
-    <div className="relative mx-auto w-full max-w-md">
-      {/* Outer warm circle backdrop (decorative, like a plate rim) */}
-      <div className="absolute inset-0 -m-2 rounded-full bg-secondary/40" aria-hidden />
-      {/* Photo in a soft-rounded frame */}
-      <div className="relative aspect-square overflow-hidden rounded-full border-2 border-primary/20 shadow-lg paper-card">
+    <div className="relative mx-auto w-full max-w-2xl">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-primary-foreground/15 shadow-2xl sm:aspect-[16/10]">
         <Image
           src={HERO_PHOTO_URL}
           alt="Stack of fluffy pancakes with maple syrup and butter"
           fill
           priority
-          sizes="(max-width: 768px) 100vw, 28rem"
+          sizes="(max-width: 768px) 100vw, 42rem"
           className="object-cover"
         />
-        {/* Warm sepia overlay for vintage feel */}
+        {/* Subtle warm gradient for legibility + mood */}
         <div
-          className="absolute inset-0 mix-blend-multiply opacity-15"
+          className="absolute inset-0 mix-blend-multiply opacity-20"
           style={{
             background:
-              "radial-gradient(circle, rgba(196,74,59,0.15) 0%, rgba(59,42,31,0.25) 100%)",
+              "linear-gradient(180deg, rgba(59,42,31,0.05) 0%, rgba(59,42,31,0.35) 100%)",
           }}
           aria-hidden
         />
       </div>
-      {/* Floating coffee cup icon badge */}
-      <div className="absolute -bottom-3 -right-3 h-14 w-14 rounded-full bg-card border border-border flex items-center justify-center shadow-md animate-float-slow">
+      {/* Floating coffee cup badge */}
+      <div className="absolute -bottom-4 -right-3 h-14 w-14 rounded-full bg-card border border-border flex items-center justify-center shadow-md animate-float-slow">
         <CoffeeCup className="h-7 w-7 text-accent" />
       </div>
       {/* Floating mint sprig badge */}
-      <div className="absolute -top-3 -left-3 h-12 w-12 rounded-full bg-card border border-border flex items-center justify-center shadow-md animate-float-slow" style={{ animationDelay: "1.5s" }}>
+      <div
+        className="absolute -top-4 -left-3 h-12 w-12 rounded-full bg-card border border-border flex items-center justify-center shadow-md animate-float-slow"
+        style={{ animationDelay: "1.5s" }}
+      >
         <MintSprig className="h-6 w-6 text-tertiary" />
       </div>
     </div>
@@ -498,33 +516,56 @@ function Menu({
           <div className="divider-dotted w-24" />
         </div>
 
-        {/* Menu groups — render one block per DB category */}
+        {/* Menu groups — one horizontal drag-scroll row per DB category */}
         {grouped.length === 0 ? (
           <p className="text-sm italic text-muted-foreground">
             Aucune catégorie de menu pour le moment. Ouvrez l'admin (Shift+A) pour en ajouter.
           </p>
         ) : (
-          <div className="grid gap-10 md:grid-cols-2 md:gap-14">
+          <div className="space-y-14">
             {grouped.map((g) => (
               <div key={g.cat} className="print-category">
                 {/* Category header */}
-                <div className="mb-5 flex items-center gap-3 border-b border-border pb-3">
-                  <span className="text-accent">{iconFor(g.cat)}</span>
-                  <h3 className="font-display text-2xl font-600 text-primary sm:text-3xl">
-                    {g.label}
-                  </h3>
+                <div className="mb-5 flex items-center justify-between gap-3 border-b border-border pb-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-accent">{iconFor(g.cat)}</span>
+                    <h3 className="font-display text-2xl font-600 text-primary sm:text-3xl">
+                      {g.label}
+                    </h3>
+                  </div>
+                  {g.items.length > 2 && (
+                    <span
+                      className="hidden shrink-0 items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-[10px] font-600 uppercase tracking-wide text-muted-foreground sm:inline-flex no-print"
+                      data-no-print
+                    >
+                      {lang === "en" ? "Drag" : "Glisser"}
+                      <span aria-hidden>→</span>
+                    </span>
+                  )}
                 </div>
-                {/* Items */}
+
                 {g.items.length === 0 ? (
                   <p className="text-xs italic text-muted-foreground">
                     (Pas encore d'items dans cette catégorie — ouvrez l'admin pour en ajouter.)
                   </p>
                 ) : (
-                  <ul className="space-y-4">
-                    {g.items.map((it) => (
-                      <MenuRow key={it.id} item={it} lang={lang} />
-                    ))}
-                  </ul>
+                  <>
+                    {/* Horizontal drag-scroll cards (screen) */}
+                    <div
+                      className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0 no-print"
+                      data-no-print
+                    >
+                      {g.items.map((it) => (
+                        <MenuCard key={it.id} item={it} lang={lang} />
+                      ))}
+                    </div>
+                    {/* Plain vertical list for print only */}
+                    <ul className="mt-3 hidden space-y-4 print:block">
+                      {g.items.map((it) => (
+                        <MenuRow key={it.id} item={it} lang={lang} />
+                      ))}
+                    </ul>
+                  </>
                 )}
               </div>
             ))}
@@ -540,7 +581,50 @@ function Menu({
   );
 }
 
-/* ---------- Single menu row with photo thumbnail ---------- */
+/* ---------- Menu card: square photo + name + price, for the horizontal scroll row ---------- */
+function MenuCard({ item, lang }: { item: MenuItemDTO; lang: Lang }) {
+  const name = lang === "en" ? item.nameEn : item.nameFr;
+  const desc = lang === "en" ? item.descEn : item.descFr;
+  return (
+    <div className="group w-40 shrink-0 snap-start sm:w-48">
+      <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-card">
+        {item.photoUrl ? (
+          <Image
+            src={item.photoUrl}
+            alt={name}
+            fill
+            sizes="192px"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            <ForkKnife className="h-6 w-6" />
+          </div>
+        )}
+      </div>
+      <div className="mt-2 flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="font-display text-sm font-500 leading-tight text-primary sm:text-base">
+            {name}
+          </div>
+          {desc && (
+            <div className="mt-0.5 truncate text-xs text-muted-foreground">
+              {desc}
+            </div>
+          )}
+        </div>
+        <div className="num-vintage shrink-0 text-sm text-accent sm:text-base">
+          {item.price}
+          <span className="ml-0.5 text-[10px] font-400 text-muted-foreground">
+            MAD
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Single menu row with photo thumbnail (used for print layout) ---------- */
 // Map photoSize → pixel size of the thumbnail in the menu row
 const PHOTO_SIZE_PX: Record<PhotoSize, string> = {
   small: "h-12 w-12 sm:h-14 sm:w-14",
