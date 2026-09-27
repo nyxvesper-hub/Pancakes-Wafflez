@@ -6,8 +6,8 @@
  *
  * NOTE ON PHOTOS: individual photos weren't supplied for every one of these ~50
  * items, so photoUrl below reuses the existing stock food photos (cycled per
- * category) as placeholders. Swap them for real photos of each dish later via
- * the Admin Sheet (Shift+A) — click any item's photo to replace it.
+ * category) as placeholders. Replace them with approved restaurant photos
+ * before production.
  *
  * NOTE ON PRICES: all prices are in MAD (Moroccan dirhams), stored as integers,
  * transcribed exactly as shown on the menu.

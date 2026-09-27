@@ -3,8 +3,7 @@
  * French is the primary language (most Casa brunch places use French),
  * English is the secondary (for tourists + international visitors).
  *
- * Old `ar` block was removed per request — most Moroccan café clients
- * only need FR + EN, not Arabic.
+ * FR + EN are the only supported languages.
  */
 
 export type Lang = "fr" | "en";
@@ -16,6 +15,7 @@ export const strings = {
       htmlLang: "fr",
       dir: "ltr",
     },
+
     nav: {
       story: "Notre histoire",
       menu: "Menu",
@@ -23,10 +23,7 @@ export const strings = {
       findus: "Nous trouver",
       order: "Commander",
     },
-    print: {
-      button: "Télécharger le menu (PDF)",
-      aria: "Télécharger le menu en PDF",
-    },
+
     hero: {
       eyebrow: "Casablanca · Maroc",
       title: "Pancakes",
@@ -39,6 +36,7 @@ export const strings = {
       hours_chip: "10h — 19h · Fermé le lundi",
       location_chip: "Casablanca, Maroc",
     },
+
     story: {
       label: "Notre histoire",
       title: "Une petite maison qui sent la farine chaude",
@@ -54,6 +52,7 @@ export const strings = {
       stat_3: "Sur commande",
       stat_3_sub: "Grazing tables 24h à l'avance",
     },
+
     menu: {
       label: "Le menu",
       title: "Tout est fait ici, le matin même",
@@ -62,6 +61,7 @@ export const strings = {
       c_waffles: "Gaufres",
       c_brunch: "Brunch & Thé",
       c_bakery: "Pâtisseries",
+
       items: {
         classic: {
           name: "Pancakes classiques",
@@ -144,26 +144,34 @@ export const strings = {
           price: "28",
         },
       },
-      note: "Les plats peuvent contenir des traces de fruits à coque. N'hésitez pas à demander.",
+
+      note:
+        "Les plats peuvent contenir des traces de fruits à coque. N'hésitez pas à demander.",
     },
+
     gallery: {
       label: "La galerie",
       title: "Ce qui sort de la cuisine",
       subtitle: "Quelques instants du matin, à Casablanca.",
     },
+
     findus: {
       label: "Nous trouver",
       title: "Venez bruncher à Casablanca",
       address_label: "Adresse",
-      address: "Quartier racé — Casablanca, Maroc",
-      hours_label: "Heures",
-      hours_lines: ["Lun : Fermé", "Mar — Dim : 10h — 19h"],
+      address: "Rue Aïn Oulmes, Casablanca 20250, Maroc",
+      hours_label: "Horaires",
+      hours_lines: [
+        "Lundi : Fermé",
+        "Mardi — Dimanche : 10h — 19h",
+      ],
       contact_label: "Contact",
-      phone: "+212 6 12 34 56 78",
+      phone: "+212 520 33 53 47",
       instagram_label: "Instagram",
       instagram_handle: "@pancakesandwafflez",
       map_cta: "Ouvrir dans Google Maps",
     },
+
     cta: {
       eyebrow: "Sur commande",
       title: "Faites votre commande sur WhatsApp",
@@ -172,14 +180,60 @@ export const strings = {
       button: "Ouvrir WhatsApp",
       note: "Réponse rapide pendant les heures d'ouverture.",
     },
+
+    ui: {
+      loadingMenu: "Chargement du menu…",
+      emptyCategory: "Aucun article dans cette catégorie pour le moment.",
+    },
+
+    ordering: {
+      add: "Ajouter",
+      addToCart: "Ajouter au panier",
+      added: "Ajouté",
+      basePrice: "Prix de base",
+      cartLabel: "Panier",
+      cartTitle: "Votre commande",
+      cartDescription: "Vérifiez votre commande avant de continuer.",
+      checkout: "Commander",
+      checkoutWhatsApp: "Commander sur WhatsApp",
+      closeCart: "Fermer le panier",
+      closeCustomization: "Fermer la personnalisation",
+      clearCart: "Vider le panier",
+      continueShopping: "Continuer le menu",
+      decrease: "Diminuer la quantité",
+      emptyBody: "Découvrez notre menu et ajoutez vos favoris.",
+      emptyDescription: "Votre panier est vide.",
+      emptyTitle: "Votre panier est vide",
+      extras: "Suppléments",
+      increase: "Augmenter la quantité",
+      itemLabel: "article",
+      itemsLabel: "articles",
+      nameLabel: "Votre nom",
+      namePlaceholder: "Votre nom (facultatif)",
+      noteLabel: "Remarque pour la commande",
+      notePlaceholder: "Ex : sans sucre, merci.",
+      openCart: "Ouvrir le panier",
+      quantity: "Quantité",
+      remove: "Retirer",
+      subtotal: "Sous-total",
+      total: "Total",
+      viewCart: "Voir le panier →",
+      viewMenu: "Voir le menu",
+      whatsappGreeting:
+        "Bonjour Pancakes & Wafflez 👋\n\nJe voudrais commander :",
+      whatsappItemExtras: " + ",
+      whatsappNote: "Remarque",
+      whatsappThanks: "Merci !",
+    },
+
     footer: {
       tagline: "Maison de brunch à Casablanca.",
       col1_title: "Adresse",
-      col1_line1: "Quartier racé",
-      col1_line2: "Casablanca, Maroc",
-      col2_title: "Heures",
-      col2_line1: "Mar — Dim",
-      col2_line2: "10h — 19h · Fermé lundi",
+      col1_line1: "Rue Aïn Oulmes",
+      col1_line2: "Casablanca 20250, Maroc",
+      col2_title: "Horaires",
+      col2_line1: "Lundi : Fermé",
+      col2_line2: "Mardi — Dimanche : 10h — 19h",
       col3_title: "Suivez-nous",
       col3_line1: "Instagram",
       col3_line2: "@pancakesandwafflez",
@@ -188,11 +242,13 @@ export const strings = {
       in_casa: "à Casablanca",
     },
   },
+
   en: {
     meta: {
       htmlLang: "en",
       dir: "ltr",
     },
+
     nav: {
       story: "Our story",
       menu: "Menu",
@@ -200,10 +256,7 @@ export const strings = {
       findus: "Find us",
       order: "Order",
     },
-    print: {
-      button: "Download menu (PDF)",
-      aria: "Download the menu as a PDF",
-    },
+
     hero: {
       eyebrow: "Casablanca · Morocco",
       title: "Pancakes",
@@ -216,6 +269,7 @@ export const strings = {
       hours_chip: "10am — 7pm · Closed Mondays",
       location_chip: "Casablanca, Morocco",
     },
+
     story: {
       label: "Our story",
       title: "A little house that smells of warm flour",
@@ -231,6 +285,7 @@ export const strings = {
       stat_3: "Made-to-order",
       stat_3_sub: "Grazing tables with 24h notice",
     },
+
     menu: {
       label: "The menu",
       title: "Everything is made here, the same morning",
@@ -239,6 +294,7 @@ export const strings = {
       c_waffles: "Waffles",
       c_brunch: "Brunch & Tea",
       c_bakery: "Pastries",
+
       items: {
         classic: {
           name: "Classic pancakes",
@@ -321,26 +377,33 @@ export const strings = {
           price: "28",
         },
       },
+
       note: "Dishes may contain traces of nuts. Please ask if unsure.",
     },
+
     gallery: {
       label: "Gallery",
       title: "What comes out of the kitchen",
       subtitle: "A few moments from the morning, in Casablanca.",
     },
+
     findus: {
       label: "Find us",
       title: "Come brunch in Casablanca",
       address_label: "Address",
-      address: "Racé neighbourhood — Casablanca, Morocco",
+      address: "Rue Aïn Oulmes, Casablanca 20250, Morocco",
       hours_label: "Hours",
-      hours_lines: ["Mon: Closed", "Tue — Sun: 10am — 7pm"],
+      hours_lines: [
+        "Monday: Closed",
+        "Tuesday — Sunday: 10am — 7pm",
+      ],
       contact_label: "Contact",
-      phone: "+212 6 12 34 56 78",
+      phone: "+212 520 33 53 47",
       instagram_label: "Instagram",
       instagram_handle: "@pancakesandwafflez",
       map_cta: "Open in Google Maps",
     },
+
     cta: {
       eyebrow: "Made to order",
       title: "Place your order on WhatsApp",
@@ -349,14 +412,60 @@ export const strings = {
       button: "Open WhatsApp",
       note: "Quick reply during opening hours.",
     },
+
+    ui: {
+      loadingMenu: "Loading menu…",
+      emptyCategory: "No items in this category yet.",
+    },
+
+    ordering: {
+      add: "Add",
+      addToCart: "Add to cart",
+      added: "Added",
+      basePrice: "Base price",
+      cartLabel: "Cart",
+      cartTitle: "Your order",
+      cartDescription: "Review your order before continuing.",
+      checkout: "Order",
+      checkoutWhatsApp: "Order on WhatsApp",
+      closeCart: "Close cart",
+      closeCustomization: "Close customization",
+      clearCart: "Clear cart",
+      continueShopping: "Continue browsing",
+      decrease: "Decrease quantity",
+      emptyBody: "Explore the menu and add your favorites.",
+      emptyDescription: "Your cart is empty.",
+      emptyTitle: "Your cart is empty",
+      extras: "Extras",
+      increase: "Increase quantity",
+      itemLabel: "item",
+      itemsLabel: "items",
+      nameLabel: "Your name",
+      namePlaceholder: "Your name (optional)",
+      noteLabel: "Order note",
+      notePlaceholder: "E.g. no sugar, please.",
+      openCart: "Open cart",
+      quantity: "Quantity",
+      remove: "Remove",
+      subtotal: "Subtotal",
+      total: "Total",
+      viewCart: "View cart →",
+      viewMenu: "View menu",
+      whatsappGreeting:
+        "Hello Pancakes & Wafflez 👋\n\nI would like to order:",
+      whatsappItemExtras: " + ",
+      whatsappNote: "Note",
+      whatsappThanks: "Thank you!",
+    },
+
     footer: {
       tagline: "Brunch house in Casablanca.",
       col1_title: "Address",
-      col1_line1: "Racé neighbourhood",
-      col1_line2: "Casablanca, Morocco",
+      col1_line1: "Rue Aïn Oulmes",
+      col1_line2: "Casablanca 20250, Morocco",
       col2_title: "Hours",
-      col2_line1: "Tue — Sun",
-      col2_line2: "10am — 7pm · Closed Mondays",
+      col2_line1: "Monday: Closed",
+      col2_line2: "Tuesday — Sunday: 10am — 7pm",
       col3_title: "Follow us",
       col3_line1: "Instagram",
       col3_line2: "@pancakesandwafflez",

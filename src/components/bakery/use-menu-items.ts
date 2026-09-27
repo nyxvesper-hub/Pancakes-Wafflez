@@ -2,26 +2,16 @@
 
 /**
  * useMenu — TanStack Query hook that fetches both menu items AND categories.
- * Exposes mutation helpers for the admin Sheet (items: create/update/delete,
- * categories: create/update/delete).
+ * The public Menu section reads `items` + `categories` and falls back to
+ * empty arrays when the network call hasn't returned yet.
  *
- * The admin Sheet uses these mutations. The public Menu section reads
- * `items` + `categories` and falls back to empty arrays when the network
- * call hasn't returned yet.
- *
- * Categories are DB-driven now (not hardcoded) — the owner can add a new
- * food section ("Smoothies", "Salades", etc.) from the admin Sheet and it
- * appears on the live page instantly.
+ * Categories are database-driven rather than hardcoded, so the public menu
+ * can render any category present in the database.
  *
  * Each menu item has a `photoSize` field ("small" | "medium" | "large" |
  * "feature") that controls how its thumbnail renders in the menu + gallery.
  */
-import * as React from "react";
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export type PhotoSize = "small" | "medium" | "large" | "feature";
 
@@ -46,14 +36,6 @@ export type MenuCategoryDTO = {
   displayOrder: number;
 };
 
-/** Reads the admin token fresh from localStorage on every call — never
- *  cached in a module-level constant, so it updates immediately after
- *  setAdminToken() without needing a page reload. */
-function getAdminToken(): string {
-  if (typeof window === "undefined") return "";
-  return localStorage.getItem("admin_token") || "";
-}
-
 async function fetchMenu(): Promise<MenuItemDTO[]> {
   const r = await fetch("/api/menu", { cache: "no-store" });
   if (!r.ok) throw new Error(`Menu fetch failed: ${r.status}`);
@@ -66,90 +48,7 @@ async function fetchCategories(): Promise<MenuCategoryDTO[]> {
   return r.json();
 }
 
-async function patchItem({
-  id,
-  patch,
-}: {
-  id: string;
-  patch: Partial<MenuItemDTO>;
-}): Promise<MenuItemDTO> {
-  const r = await fetch(`/api/menu/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getAdminToken()}`,
-    },
-    body: JSON.stringify(patch),
-  });
-  if (!r.ok) throw new Error(`Patch failed: ${r.status}`);
-  return r.json();
-}
-
-async function deleteItem(id: string): Promise<void> {
-  const r = await fetch(`/api/menu/${id}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${getAdminToken()}` },
-  });
-  if (!r.ok) throw new Error(`Delete failed: ${r.status}`);
-}
-
-async function createItem(item: Omit<MenuItemDTO, "id">): Promise<MenuItemDTO> {
-  const r = await fetch("/api/menu", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getAdminToken()}`,
-    },
-    body: JSON.stringify(item),
-  });
-  if (!r.ok) throw new Error(`Create failed: ${r.status}`);
-  return r.json();
-}
-
-async function patchCategory({
-  key,
-  patch,
-}: {
-  key: string;
-  patch: Partial<MenuCategoryDTO>;
-}): Promise<MenuCategoryDTO> {
-  const r = await fetch(`/api/menu/categories/${key}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getAdminToken()}`,
-    },
-    body: JSON.stringify(patch),
-  });
-  if (!r.ok) throw new Error(`Category patch failed: ${r.status}`);
-  return r.json();
-}
-
-async function deleteCategory(key: string): Promise<void> {
-  const r = await fetch(`/api/menu/categories/${key}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${getAdminToken()}` },
-  });
-  if (!r.ok) throw new Error(`Category delete failed: ${r.status}`);
-}
-
-async function createCategory(
-  cat: Omit<MenuCategoryDTO, "createdAt" | "updatedAt">
-): Promise<MenuCategoryDTO> {
-  const r = await fetch("/api/menu/categories", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getAdminToken()}`,
-    },
-    body: JSON.stringify(cat),
-  });
-  if (!r.ok) throw new Error(`Category create failed: ${r.status}`);
-  return r.json();
-}
-
 export function useMenu() {
-  const qc = useQueryClient();
   const itemsKey = ["menu-items"];
   const catsKey = ["menu-categories"];
 
@@ -162,36 +61,6 @@ export function useMenu() {
     queryKey: catsKey,
     queryFn: fetchCategories,
     staleTime: 30_000,
-  });
-
-  const invalidateAll = () => {
-    qc.invalidateQueries({ queryKey: itemsKey });
-    qc.invalidateQueries({ queryKey: catsKey });
-  };
-
-  const patchMut = useMutation({
-    mutationFn: patchItem,
-    onSuccess: invalidateAll,
-  });
-  const deleteMut = useMutation({
-    mutationFn: deleteItem,
-    onSuccess: invalidateAll,
-  });
-  const createMut = useMutation({
-    mutationFn: createItem,
-    onSuccess: invalidateAll,
-  });
-  const patchCatMut = useMutation({
-    mutationFn: patchCategory,
-    onSuccess: invalidateAll,
-  });
-  const deleteCatMut = useMutation({
-    mutationFn: deleteCategory,
-    onSuccess: invalidateAll,
-  });
-  const createCatMut = useMutation({
-    mutationFn: createCategory,
-    onSuccess: invalidateAll,
   });
 
   return {
@@ -207,39 +76,5 @@ export function useMenu() {
     isCategoriesError: catsQuery.isError,
     refetchCategories: catsQuery.refetch,
 
-    // item mutations
-    patchItem: patchMut.mutateAsync,
-    deleteItem: deleteMut.mutateAsync,
-    createItem: createMut.mutateAsync,
-
-    // category mutations
-    patchCategory: patchCatMut.mutateAsync,
-    deleteCategory: deleteCatMut.mutateAsync,
-    createCategory: createCatMut.mutateAsync,
-
-    // meta
-    isPatching: patchMut.isPending,
-    isDeleting: deleteMut.isPending,
-    isCreating: createMut.isPending,
-    isPatchCat: patchCatMut.isPending,
-    isDeleteCat: deleteCatMut.isPending,
-    isCreateCat: createCatMut.isPending,
   };
 }
-
-/**
- * Save the token after the server confirms it matches ADMIN_TOKEN.
- */
-export function setAdminToken(token: string) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("admin_token", token);
-  }
-}
-
-/**
- * @deprecated — use useMenu() instead. Kept for backward compat with old
- * admin sheet code; will be removed next iteration.
- */
-export const MENU_CATEGORIES = ["pancakes", "waffles", "brunch", "bakery"] as const;
-export type MenuCategory = (typeof MENU_CATEGORIES)[number];
-export const useMenuItems = useMenu;

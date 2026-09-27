@@ -29,9 +29,8 @@ model Post {
 }
 
 /**
- * A menu category. The owner can add / rename / reorder / delete these
- * via the Admin Sheet — they are NOT hardcoded. MenuItem.category stores
- * the MenuCategory.key as a soft FK (string match).
+ * A menu category rendered by the public menu selector. Categories are not
+ * hardcoded in the page; MenuItem.category stores the key as a soft FK.
  *
  * displayOrder controls left-to-right / top-to-bottom rendering on the live page.
  */
@@ -49,9 +48,8 @@ model MenuCategory {
 /**
  * A single dish on the Pancakes & Wafflez menu.
  * - Bilingual fields (fr_* + en_*) so the live site can flip language without joins.
- * - photoUrl points to the ZAI image-search CDN by default (swappable in the admin sheet).
- * - category stores the MenuCategory.key — owner-managed via the Categories section
- *   of the Admin Sheet (NOT hardcoded anymore).
+ * - photoUrl points to the ZAI image-search CDN by default.
+ * - category stores the MenuCategory.key used by the public menu selector.
  * - photoSize controls how the photo thumbnail renders in the menu + gallery:
  *   "small" | "medium" | "large" | "feature".
  * - order controls display order inside a category.
@@ -76,21 +74,3 @@ model MenuItem {
   @@index([category, order])
 }
 
-/**
- * SiteSettings — a single-row table (id is always 1) holding the parts of
- * the site the owner can customize outside the menu: the "Our Story"
- * section's title, body paragraphs, and photo. All fields are optional —
- * when null, the page falls back to the original French/English copy
- * baked into the code.
- */
-model SiteSettings {
-  id            Int      @id @default(1)
-  storyTitleFr  String?
-  storyTitleEn  String?
-  storyBodyFr1  String?
-  storyBodyEn1  String?
-  storyBodyFr2  String?
-  storyBodyEn2  String?
-  storyPhotoUrl String?
-  updatedAt     DateTime @updatedAt
-}
