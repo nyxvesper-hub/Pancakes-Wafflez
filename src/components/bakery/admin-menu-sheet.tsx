@@ -9,7 +9,7 @@
  *   - Click the visible "Admin" link in the footer, OR
  *   - Press Shift+A anywhere on the page.
  *
- * Default admin token is "demo" for dev. Set ADMIN_TOKEN env var in production.
+ * Set ADMIN_TOKEN in the server environment to enable admin access.
  */
 import * as React from "react";
 import {
@@ -38,8 +38,493 @@ import {
   type MenuCategoryDTO,
   type PhotoSize,
 } from "./use-menu-items";
+import { useSettings } from "./use-settings";
 
-const DEFAULT_TOKEN = "demo";
+/**
+ * StoryBlock — lets the owner rewrite the "Our Story" section (title +
+ * two paragraphs, in French and English) and swap its photo, without
+ * touching any code. Leaving a field blank keeps the original default
+ * copy on the live site.
+ */
+function StoryBlock() {
+  const { settings, isLoading, patchSettings, isSaving } = useSettings();
+  const [titleFr, setTitleFr] = React.useState("");
+  const [titleEn, setTitleEn] = React.useState("");
+  const [bodyFr1, setBodyFr1] = React.useState("");
+  const [bodyEn1, setBodyEn1] = React.useState("");
+  const [bodyFr2, setBodyFr2] = React.useState("");
+  const [bodyEn2, setBodyEn2] = React.useState("");
+  const [photoUrl, setPhotoUrl] = React.useState("");
+  const [loaded, setLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (settings && !loaded) {
+      setTitleFr(settings.storyTitleFr ?? "");
+      setTitleEn(settings.storyTitleEn ?? "");
+      setBodyFr1(settings.storyBodyFr1 ?? "");
+      setBodyEn1(settings.storyBodyEn1 ?? "");
+      setBodyFr2(settings.storyBodyFr2 ?? "");
+      setBodyEn2(settings.storyBodyEn2 ?? "");
+      setPhotoUrl(settings.storyPhotoUrl ?? "");
+      setLoaded(true);
+    }
+  }, [settings, loaded]);
+
+  if (isLoading) {
+    return <div className="h-40 rounded-md bg-muted animate-pulse" />;
+  }
+
+  return (
+    <section>
+      <h3 className="font-display text-xl font-600 text-primary mb-1">
+        À propos (section "Notre histoire")
+      </h3>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Laissez un champ vide pour garder le texte par défaut du site.
+      </p>
+      <form
+        className="space-y-3"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          try {
+            await patchSettings({
+              storyTitleFr: titleFr || null,
+              storyTitleEn: titleEn || null,
+              storyBodyFr1: bodyFr1 || null,
+              storyBodyEn1: bodyEn1 || null,
+              storyBodyFr2: bodyFr2 || null,
+              storyBodyEn2: bodyEn2 || null,
+              storyPhotoUrl: photoUrl || null,
+            });
+            toast({ title: "À propos mis à jour" });
+          } catch (err) {
+            toast({
+              title: "Échec",
+              description: String((err as Error).message || err),
+              variant: "destructive",
+            });
+function GalleryManager({
+  items,
+  onPatch,
+}: {
+  items: MenuItemDTO[];
+  onPatch: (id: string, patch: Partial<MenuItemDTO>) => Promise<void>;
+}) {
+  const [selectedId, setSelectedId] = React.useState(items[0]?.id ?? "");
+  const selectedItem = items.find((item) => item.id === selectedId) ?? items[0];
+  const visibleCount = items.filter(
+    (item) => item.photoUrl && item.showInGallery
+  ).length;
+
+  return (
+    <section className="rounded-md border border-border bg-card p-4">
+      <div className="mb-3">
+        <h3 className="font-display text-lg font-600 text-primary">
+          Galerie photo
+        </h3>
+        <p className="text-xs text-muted-foreground">
+          {visibleCount} photo(s) sélectionnée(s), 6 maximum affichées.
+        </p>
+      </div>
+      {selectedItem ? (
+        <>
+          <Label htmlFor="gallery-item" className="text-xs">Plat</Label>
+          <Select value={selectedItem.id} onValueChange={setSelectedId}>
+            <SelectTrigger id="gallery-item" className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {items.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.nameFr} / {item.nameEn}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <GalleryItemEditor
+            key={selectedItem.id}
+            item={selectedItem}
+            onPatch={onPatch}
+          />
+        </>
+      ) : (
+        <p className="text-sm italic text-muted-foreground">
+          Ajoutez un plat avant de gérer les photos de la galerie.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function GalleryItemEditor({
+  item,
+  onPatch,
+}: {
+  item: MenuItemDTO;
+  onPatch: (id: string, patch: Partial<MenuItemDTO>) => Promise<void>;
+}) {
+  const [photoUrl, setPhotoUrl] = React.useState(item.photoUrl ?? "");
+  const [saving, setSaving] = React.useState(false);
+
+  const savePhoto = async () => {
+    setSaving(true);
+    try {
+      await onPatch(item.id, { photoUrl: photoUrl || null });
+      toast({ title: "Photo de galerie mise à jour" });
+    } catch (error) {
+      toast({
+        title: "Échec",
+        description: String((error as Error).message || error),
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 space-y-3">
+      <label className="flex min-h-11 items-center gap-2 text-sm text-foreground">
+        <input
+          type="checkbox"
+          checked={item.showInGallery}
+          onChange={async (event) => {
+            try {
+              await onPatch(item.id, { showInGallery: event.currentTarget.checked });
+            } catch (error) {
+              toast({
+                title: "Échec",
+                description: String((error as Error).message || error),
+                variant: "destructive",
+              });
+            }
+          }}
+          className="h-4 w-4 accent-accent"
+        />
+        Afficher ce plat dans la galerie
+      </label>
+      <div>
+        <Label className="text-xs">Photo du plat</Label>
+        <p className="mb-2 text-xs text-muted-foreground">
+          Cette photo est aussi utilisée sur la carte du menu. La case ci-dessus
+          permet de la masquer uniquement dans la galerie.
+        </p>
+        <PhotoField photoUrl={photoUrl} onChange={setPhotoUrl} />
+      </div>
+      <Button
+        type="button"
+        size="sm"
+        disabled={saving || photoUrl === (item.photoUrl ?? "")}
+        onClick={savePhoto}
+      >
+        {saving ? "Sauvegarde..." : "Enregistrer la photo"}
+      </Button>
+    </div>
+  );
+}
+          }
+        }}
+      >
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label className="text-xs">Titre (FR)</Label>
+            <Input value={titleFr} onChange={(e) => setTitleFr(e.target.value)} />
+          </div>
+          <div>
+            <Label className="text-xs">Title (EN)</Label>
+            <Input value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label className="text-xs">Paragraphe 1 (FR)</Label>
+            <Textarea value={bodyFr1} onChange={(e) => setBodyFr1(e.target.value)} rows={3} />
+          </div>
+          <div>
+            <Label className="text-xs">Paragraph 1 (EN)</Label>
+            <Textarea value={bodyEn1} onChange={(e) => setBodyEn1(e.target.value)} rows={3} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label className="text-xs">Paragraphe 2 (FR)</Label>
+            <Textarea value={bodyFr2} onChange={(e) => setBodyFr2(e.target.value)} rows={3} />
+          </div>
+          <div>
+            <Label className="text-xs">Paragraph 2 (EN)</Label>
+            <Textarea value={bodyEn2} onChange={(e) => setBodyEn2(e.target.value)} rows={3} />
+          </div>
+        </div>
+        <div>
+          <Label className="text-xs">Photo</Label>
+          <PhotoField photoUrl={photoUrl} onChange={setPhotoUrl} />
+        </div>
+        <Button type="submit" size="sm" disabled={isSaving}>
+          {isSaving ? "Sauvegarde..." : "Sauvegarder"}
+        </Button>
+      </form>
+    </section>
+  );
+}
+
+
+
+/**
+ * PhotoField — lets the café owner pick a photo straight from their phone
+ * or computer (camera roll or file browser). The image is resized to a
+ * max of 1000px on its longest side and compressed to JPEG client-side,
+ * then stored as a data URL directly in the database — no separate file
+ * host needed. A "paste a URL instead" fallback stays available for
+ * anyone who already has photos hosted elsewhere.
+ */
+function PhotoField({
+  photoUrl,
+  onChange,
+}: {
+  photoUrl: string;
+  onChange: (url: string) => void;
+}) {
+  const [busy, setBusy] = React.useState(false);
+  const [showUrlInput, setShowUrlInput] = React.useState(false);
+  const [fileError, setFileError] = React.useState<string | null>(null);
+  const fileRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFile = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setFileError("Choisissez un fichier image.");
+      return;
+    }
+    if (file.size > 12 * 1024 * 1024) {
+      setFileError("L'image doit faire moins de 12 Mo.");
+      return;
+    }
+
+    setFileError(null);
+    setBusy(true);
+    const fail = () => {
+      setFileError("Impossible de traiter cette image. Essayez un autre fichier.");
+      setBusy(false);
+    };
+    const reader = new FileReader();
+    reader.onerror = fail;
+    reader.onload = () => {
+      if (typeof reader.result !== "string") {
+        fail();
+        return;
+      }
+      const img = new window.Image();
+      img.onerror = fail;
+      img.onload = () => {
+        const MAX = 1000;
+        let width = img.naturalWidth;
+        let height = img.naturalHeight;
+        if (!width || !height) {
+          fail();
+          return;
+        }
+        if (width > height && width > MAX) {
+          height = Math.round((height * MAX) / width);
+          width = MAX;
+        } else if (height > MAX) {
+          width = Math.round((width * MAX) / height);
+          height = MAX;
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          fail();
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        onChange(canvas.toDataURL("image/jpeg", 0.82));
+        setBusy(false);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="space-y-2">
+      {photoUrl && (
+        <div className="relative overflow-hidden rounded-md border border-border">
+          <img src={photoUrl} alt="Aperçu" className="h-32 w-full object-cover" />
+        </div>
+      )}
+      {fileError && (
+        <p role="alert" className="text-sm text-destructive">
+          {fileError}
+        </p>
+      )}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) handleFile(f);
+          e.currentTarget.value = "";
+        }}
+      />
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="flex-1"
+          disabled={busy}
+          onClick={() => fileRef.current?.click()}
+        >
+          {busy ? "Traitement..." : photoUrl ? "Changer la photo" : "Choisir une photo"}
+        </Button>
+        {photoUrl && (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="text-destructive hover:text-destructive"
+            onClick={() => onChange("")}
+          >
+            Retirer
+          </Button>
+        )}
+      </div>
+      <button
+        type="button"
+        className="text-xs text-muted-foreground underline underline-offset-2"
+        onClick={() => setShowUrlInput((v) => !v)}
+      >
+        {showUrlInput ? "Masquer le champ URL" : "Ou coller une URL de photo existante"}
+      </button>
+      {showUrlInput && (
+        <Input
+          value={photoUrl}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="https://..."
+        />
+      )}
+    </div>
+  );
+}
+
+function GalleryManager({
+  items,
+  onPatch,
+}: {
+  items: MenuItemDTO[];
+  onPatch: (id: string, patch: Partial<MenuItemDTO>) => Promise<void>;
+}) {
+  const [selectedId, setSelectedId] = React.useState(items[0]?.id ?? "");
+  const selectedItem = items.find((item) => item.id === selectedId) ?? items[0];
+  const visibleCount = items.filter(
+    (item) => item.photoUrl && item.showInGallery
+  ).length;
+
+  return (
+    <section className="rounded-md border border-border bg-card p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="font-display text-lg font-600 text-primary">Galerie photo</h3>
+          <p className="text-xs text-muted-foreground">
+            {visibleCount} photo(s) sélectionnée(s), 6 maximum affichées.
+          </p>
+        </div>
+      </div>
+      {selectedItem ? (
+        <>
+          <Label htmlFor="gallery-item" className="text-xs">Plat</Label>
+          <Select value={selectedItem.id} onValueChange={setSelectedId}>
+            <SelectTrigger id="gallery-item" className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {items.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.nameFr} / {item.nameEn}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <GalleryItemEditor
+            key={selectedItem.id}
+            item={selectedItem}
+            onPatch={onPatch}
+          />
+        </>
+      ) : (
+        <p className="text-sm italic text-muted-foreground">
+          Ajoutez un plat avant de gérer les photos de la galerie.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function GalleryItemEditor({
+  item,
+  onPatch,
+}: {
+  item: MenuItemDTO;
+  onPatch: (id: string, patch: Partial<MenuItemDTO>) => Promise<void>;
+}) {
+  const [photoUrl, setPhotoUrl] = React.useState(item.photoUrl ?? "");
+  const [saving, setSaving] = React.useState(false);
+
+  const savePhoto = async () => {
+    setSaving(true);
+    try {
+      await onPatch(item.id, { photoUrl: photoUrl || null });
+      toast({ title: "Photo de galerie mise à jour" });
+    } catch (error) {
+      toast({
+        title: "Échec",
+        description: String((error as Error).message || error),
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 space-y-3">
+      <label className="flex min-h-11 items-center gap-2 text-sm text-foreground">
+        <input
+          type="checkbox"
+          checked={item.showInGallery}
+          onChange={async (event) => {
+            try {
+              await onPatch(item.id, { showInGallery: event.currentTarget.checked });
+            } catch (error) {
+              toast({
+                title: "Échec",
+                description: String((error as Error).message || error),
+                variant: "destructive",
+              });
+            }
+          }}
+          className="h-4 w-4 accent-accent"
+        />
+        Afficher ce plat dans la galerie
+      </label>
+      <div>
+        <Label className="text-xs">Photo du plat</Label>
+        <PhotoField photoUrl={photoUrl} onChange={setPhotoUrl} />
+      </div>
+      <Button
+        type="button"
+        size="sm"
+        disabled={saving || photoUrl === (item.photoUrl ?? "")}
+        onClick={savePhoto}
+      >
+        {saving ? "Sauvegarde..." : "Enregistrer la photo"}
+      </Button>
+    </div>
+  );
+}
 
 type Props = {
   open: boolean;
@@ -49,6 +534,8 @@ type Props = {
 export function AdminMenuSheet({ open, onOpenChange }: Props) {
   const [unlocked, setUnlocked] = React.useState(false);
   const [tokenInput, setTokenInput] = React.useState("");
+  const [checking, setChecking] = React.useState(false);
+  const [authError, setAuthError] = React.useState<string | null>(null);
   const {
     items,
     categories,
@@ -83,14 +570,29 @@ export function AdminMenuSheet({ open, onOpenChange }: Props) {
           <UnlockForm
             tokenInput={tokenInput}
             setTokenInput={setTokenInput}
-            onSubmit={() => {
-              const t = tokenInput.trim() || DEFAULT_TOKEN;
-              setAdminToken(t);
-              setUnlocked(true);
-              toast({
-                title: "Token enregistré",
-                description: "Si les modifications échouent, le token est erroné.",
-              });
+            checking={checking}
+            authError={authError}
+            onSubmit={async () => {
+              setChecking(true);
+              setAuthError(null);
+              try {
+                const r = await fetch("/api/verify", {
+                  headers: { Authorization: `Bearer ${tokenInput}` },
+                });
+                if (r.ok) {
+                  setAdminToken(tokenInput);
+                  setUnlocked(true);
+                  toast({ title: "Accès autorisé" });
+                } else if (r.status === 503) {
+                  setAuthError("ADMIN_TOKEN n'est pas configuré sur le serveur.");
+                } else {
+                  setAuthError("Mot de passe incorrect. Réessayez.");
+                }
+              } catch {
+                setAuthError("Impossible de vérifier — vérifiez votre connexion.");
+              } finally {
+                setChecking(false);
+              }
             }}
           />
         ) : isItemsError || isCategoriesError ? (
@@ -106,47 +608,65 @@ export function AdminMenuSheet({ open, onOpenChange }: Props) {
           </div>
         ) : (
           <div className="mt-6 space-y-6">
+            {/* === ABOUT / STORY SECTION (owner-editable text + photo) === */}
+            <StoryBlock />
+
+            <div className="divider-dotted" />
+
+            <GalleryManager
+              items={items}
+              onPatch={async (id, patch) => {
+                await patchItem({ id, patch });
+              }}
+            />
+
+            <div className="divider-dotted" />
+
             {/* === CATEGORIES SECTION === */}
             <CategoriesBlock
               categories={categories}
               onCreate={(cat) =>
                 createCategory(cat)
-                  .then(() => toast({ title: "Catégorie ajoutée" }))
-                  .catch((e) =>
+                  .then(() => {
+                    toast({ title: "Catégorie ajoutée" });
+                  })
+                  .catch((e) => {
                     toast({
                       title: "Échec",
                       description: String(e.message || e),
                       variant: "destructive",
-                    })
-                  )
+                    });
+                  })
               }
               onPatch={(key, patch) =>
                 patchCategory({ key, patch })
-                  .then(() => toast({ title: "Catégorie mise à jour" }))
-                  .catch((e) =>
+                  .then(() => {
+                    toast({ title: "Catégorie mise à jour" });
+                  })
+                  .catch((e) => {
                     toast({
                       title: "Échec",
                       description: String(e.message || e),
                       variant: "destructive",
-                    })
-                  )
+                    });
+                  })
               }
               onDelete={(key) =>
                 deleteCategory(key)
-                  .then(() =>
+                  .then(() => {
                     toast({
                       title: "Catégorie supprimée",
                       description:
                         "Les plats restent en base — re-catégorisez-les ou supprimez-les.",
-                    })
-                  )
-                  .catch((e) =>
+                    });
+                  })
+                  .catch((e) => {
                     toast({
                       title: "Échec",
                       description: String(e.message || e),
                       variant: "destructive",
-                    })
-                  )
+                    });
+                  })
               }
             />
 
@@ -165,38 +685,42 @@ export function AdminMenuSheet({ open, onOpenChange }: Props) {
                   items={items.filter((i) => i.category === cat.key)}
                   onPatch={(id, patch) =>
                     patchItem({ id, patch })
-                      .then(() =>
-                        toast({ title: "Mis à jour", description: "Modification enregistrée." })
-                      )
-                      .catch((e) =>
+                      .then(() => {
+                        toast({ title: "Mis à jour", description: "Modification enregistrée." });
+                      })
+                      .catch((e) => {
                         toast({
                           title: "Échec",
                           description: String(e.message || e),
                           variant: "destructive",
-                        })
-                      )
+                        });
+                      })
                   }
                   onDelete={(id) =>
                     deleteItem(id)
-                      .then(() => toast({ title: "Plat supprimé" }))
-                      .catch((e) =>
+                      .then(() => {
+                        toast({ title: "Plat supprimé" });
+                      })
+                      .catch((e) => {
                         toast({
                           title: "Échec",
                           description: String(e.message || e),
                           variant: "destructive",
-                        })
-                      )
+                        });
+                      })
                   }
                   onCreate={(item) =>
-                    createItem(item)
-                      .then(() => toast({ title: "Plat ajouté" }))
-                      .catch((e) =>
+                    createItem(item as Omit<MenuItemDTO, "id">)
+                      .then(() => {
+                        toast({ title: "Plat ajouté" });
+                      })
+                      .catch((e) => {
                         toast({
                           title: "Échec",
                           description: String(e.message || e),
                           variant: "destructive",
-                        })
-                      )
+                        });
+                      })
                   }
                 />
               ))
@@ -213,10 +737,14 @@ function UnlockForm({
   tokenInput,
   setTokenInput,
   onSubmit,
+  checking,
+  authError,
 }: {
   tokenInput: string;
   setTokenInput: (v: string) => void;
   onSubmit: () => void;
+  checking: boolean;
+  authError: string | null;
 }) {
   return (
     <form
@@ -227,22 +755,22 @@ function UnlockForm({
       }}
     >
       <Label htmlFor="token" className="text-xs uppercase tracking-wider text-muted-foreground">
-        Jeton admin
+        Mot de passe admin
       </Label>
       <Input
         id="token"
         type="password"
         value={tokenInput}
         onChange={(e) => setTokenInput(e.target.value)}
-        placeholder="demo"
         autoFocus
       />
-      <p className="text-xs text-muted-foreground">
-        Par défaut <code className="px-1 bg-muted rounded">demo</code>. En production, remplacez la variable d'env <code className="px-1 bg-muted rounded">ADMIN_TOKEN</code>.
-      </p>
-      <Button type="submit" className="w-full bg-primary text-primary-foreground">
-        Déverrouiller
+      {authError && (
+        <p className="text-xs font-500 text-destructive">{authError}</p>
+      )}
+      <Button type="submit" className="w-full bg-primary text-primary-foreground" disabled={checking}>
+        {checking ? "Vérification..." : "Déverrouiller"}
       </Button>
+
     </form>
   );
 }
@@ -543,7 +1071,7 @@ function CategoryBlock({
           defaultCategory={category.key}
           defaultOrder={items.length + 1}
           onSubmit={async (item) => {
-            await onCreate(item);
+            await onCreate(item as Omit<MenuItemDTO, "id">);
             setShowNew(false);
           }}
           onCancel={() => setShowNew(false)}
@@ -773,18 +1301,8 @@ function ItemForm({
         </div>
       </div>
       <div>
-        <Label className="text-xs">URL photo</Label>
-        <Input
-          value={photoUrl}
-          onChange={(e) => setPhotoUrl(e.target.value)}
-          placeholder="https://z-cdn.chatglm.cn/..."
-        />
-        {photoUrl && (
-          <div className="mt-2 rounded-md overflow-hidden border border-border">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photoUrl} alt="preview" className="h-32 w-full object-cover" />
-          </div>
-        )}
+        <Label className="text-xs">Photo</Label>
+        <PhotoField photoUrl={photoUrl} onChange={setPhotoUrl} />
       </div>
       <div className="flex justify-end gap-2">
         <Button type="button" size="sm" variant="ghost" onClick={onCancel}>

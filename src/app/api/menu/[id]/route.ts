@@ -9,14 +9,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "demo";
-
-function checkAuth(req: NextRequest) {
-  const auth = req.headers.get("authorization") || "";
-  const token = auth.replace(/^Bearer\s+/i, "");
-  return token === ADMIN_TOKEN;
-}
+import { adminAuthError } from "@/lib/admin-auth";
 
 // Bust the GET cache by making the same module-scope `cache` variable
 // reach into the parent route's cache. We can't directly, so we just
@@ -25,9 +18,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!checkAuth(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = adminAuthError(req);
+  if (authError) return authError;
   const { id } = await params;
   const body = await req.json();
   const updated = await db.menuItem.update({
@@ -42,6 +34,9 @@ export async function PATCH(
       ...(body.price !== undefined ? { price: Number(body.price) } : {}),
       ...(body.photoUrl !== undefined ? { photoUrl: body.photoUrl } : {}),
       ...(body.photoSize !== undefined ? { photoSize: body.photoSize } : {}),
+      ...(typeof body.showInGallery === "boolean"
+        ? { showInGallery: body.showInGallery }
+        : {}),
     },
   });
   return NextResponse.json(updated);
@@ -51,9 +46,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!checkAuth(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = adminAuthError(req);
+  if (authError) return authError;
   const { id } = await params;
   await db.menuItem.delete({ where: { id } });
   return NextResponse.json({ ok: true });

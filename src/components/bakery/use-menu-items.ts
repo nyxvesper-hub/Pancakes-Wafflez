@@ -36,6 +36,7 @@ export type MenuItemDTO = {
   price: number;
   photoUrl: string | null;
   photoSize: PhotoSize;
+  showInGallery: boolean;
 };
 
 export type MenuCategoryDTO = {
@@ -45,9 +46,13 @@ export type MenuCategoryDTO = {
   displayOrder: number;
 };
 
-const ADMIN_TOKEN =
-  (typeof window !== "undefined" && localStorage.getItem("admin_token")) ||
-  "demo";
+/** Reads the admin token fresh from localStorage on every call — never
+ *  cached in a module-level constant, so it updates immediately after
+ *  setAdminToken() without needing a page reload. */
+function getAdminToken(): string {
+  if (typeof window === "undefined") return "";
+  return localStorage.getItem("admin_token") || "";
+}
 
 async function fetchMenu(): Promise<MenuItemDTO[]> {
   const r = await fetch("/api/menu", { cache: "no-store" });
@@ -72,7 +77,7 @@ async function patchItem({
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${ADMIN_TOKEN}`,
+      Authorization: `Bearer ${getAdminToken()}`,
     },
     body: JSON.stringify(patch),
   });
@@ -83,7 +88,7 @@ async function patchItem({
 async function deleteItem(id: string): Promise<void> {
   const r = await fetch(`/api/menu/${id}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${ADMIN_TOKEN}` },
+    headers: { Authorization: `Bearer ${getAdminToken()}` },
   });
   if (!r.ok) throw new Error(`Delete failed: ${r.status}`);
 }
@@ -93,7 +98,7 @@ async function createItem(item: Omit<MenuItemDTO, "id">): Promise<MenuItemDTO> {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${ADMIN_TOKEN}`,
+      Authorization: `Bearer ${getAdminToken()}`,
     },
     body: JSON.stringify(item),
   });
@@ -112,7 +117,7 @@ async function patchCategory({
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${ADMIN_TOKEN}`,
+      Authorization: `Bearer ${getAdminToken()}`,
     },
     body: JSON.stringify(patch),
   });
@@ -123,7 +128,7 @@ async function patchCategory({
 async function deleteCategory(key: string): Promise<void> {
   const r = await fetch(`/api/menu/categories/${key}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${ADMIN_TOKEN}` },
+    headers: { Authorization: `Bearer ${getAdminToken()}` },
   });
   if (!r.ok) throw new Error(`Category delete failed: ${r.status}`);
 }
@@ -135,7 +140,7 @@ async function createCategory(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${ADMIN_TOKEN}`,
+      Authorization: `Bearer ${getAdminToken()}`,
     },
     body: JSON.stringify(cat),
   });
@@ -223,10 +228,7 @@ export function useMenu() {
 }
 
 /**
- * Set the admin token in localStorage. The default "demo" token works
- * against the dev server (where ADMIN_TOKEN env falls back to "demo").
- * In production, set ADMIN_TOKEN on the server and have the admin type
- * it in the Sheet once to unlock editing.
+ * Save the token after the server confirms it matches ADMIN_TOKEN.
  */
 export function setAdminToken(token: string) {
   if (typeof window !== "undefined") {

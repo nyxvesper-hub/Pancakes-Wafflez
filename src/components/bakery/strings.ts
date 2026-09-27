@@ -8,6 +8,7 @@
  */
 
 export type Lang = "fr" | "en";
+export type Translation = (typeof strings)[Lang];
 
 export const strings = {
   fr: {
@@ -56,8 +57,7 @@ export const strings = {
     menu: {
       label: "Le menu",
       title: "Tout est fait ici, le matin même",
-      subtitle:
-        "Prix en dirhams (MAD). Boissons chaudes incluses avec les brunchs. Sans lait de vache, sans additifs.",
+      subtitle: "Prix en dirhams marocains (MAD).",
       c_pancakes: "Pancakes",
       c_waffles: "Gaufres",
       c_brunch: "Brunch & Thé",
@@ -234,8 +234,7 @@ export const strings = {
     menu: {
       label: "The menu",
       title: "Everything is made here, the same morning",
-      subtitle:
-        "Prices in dirhams (MAD). Hot drinks included with brunches. No cow's milk, no additives.",
+      subtitle: "Prices in Moroccan dirhams (MAD).",
       c_pancakes: "Pancakes",
       c_waffles: "Waffles",
       c_brunch: "Brunch & Tea",

@@ -48,7 +48,7 @@ const A4_H = 841.89;
 const MARGIN = 50;
 
 /** Safe font registration — falls back to Helvetica if a file is missing. */
-function registerFonts(doc: PDFKit.PDFDocument) {
+function registerFonts(doc: InstanceType<typeof PDFDocument>) {
   const files: [string, string][] = [
     ["LiberationSerif", FONT_SERIF_REG],
     ["LiberationSerif-Bold", FONT_SERIF_BOLD],
@@ -63,7 +63,7 @@ function registerFonts(doc: PDFKit.PDFDocument) {
 }
 
 /** Draw a horizontal dotted divider. */
-function drawDottedLine(doc: PDFKit.PDFDocument, y: number, x1: number, x2: number) {
+function drawDottedLine(doc: InstanceType<typeof PDFDocument>, y: number, x1: number, x2: number) {
   const step = 4;
   for (let x = x1; x < x2; x += step) {
     doc.circle(x, y, 0.7).fillColor(C.border).fill();
@@ -220,7 +220,7 @@ export function buildMenuPdf(
 
 /** Draw a column of category blocks. */
 function drawColumn(
-  doc: PDFKit.PDFDocument,
+  doc: InstanceType<typeof PDFDocument>,
   x: number,
   w: number,
   startY: number,

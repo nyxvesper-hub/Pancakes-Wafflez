@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { strings, type Lang } from "@/components/bakery/strings";
+import { strings, type Lang, type Translation } from "@/components/bakery/strings";
 import {
   Whisk,
   MintSprig,
@@ -26,7 +26,7 @@ import {
   type MenuCategoryDTO,
   type PhotoSize,
 } from "@/components/bakery/use-menu-items";
-import { AdminMenuSheet } from "@/components/bakery/admin-menu-sheet";
+import { useSettings, type SiteSettingsDTO } from "@/components/bakery/use-settings";
 
 /* ============================================================
    Pancakes & Wafflez — single-page vintage bakery site
@@ -76,23 +76,23 @@ function Header({
 }: {
   lang: Lang;
   setLang: (l: Lang) => void;
-  t: (typeof strings)["fr"];
+  t: Translation;
 }) {
   const [open, setOpen] = React.useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md print:hidden">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         {/* Logo lockup */}
-        <a href="#top" className="flex items-baseline gap-2">
-          <PancakeStack className="h-6 w-6 text-accent" />
-          <span className="font-display text-xl sm:text-2xl font-600 text-primary">
-            Pancakes
-          </span>
-          <span className="font-display text-xl sm:text-2xl italic text-muted-foreground">
-            &amp;
-          </span>
-          <span className="font-display text-xl sm:text-2xl font-600 text-primary">
-            Wafflez
+        <a href="#top" className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+          <Image
+            src="/pancakes-wafflez-logo.jpg"
+            alt="Pancakes & Wafflez"
+            width={52}
+            height={52}
+            className="h-11 w-11 shrink-0 rounded-full border border-secondary bg-card object-cover shadow-sm sm:h-14 sm:w-14"
+          />
+          <span className="max-w-32 font-display text-sm font-600 leading-tight text-primary sm:max-w-none sm:text-xl">
+            Pancakes <span className="italic text-accent">&amp;</span> Wafflez
           </span>
         </a>
 
@@ -230,32 +230,32 @@ function Hero({
   t,
   lang,
 }: {
-  t: (typeof strings)["fr"];
+  t: Translation;
   lang: Lang;
 }) {
   return (
     <section
       id="top"
-      className="relative overflow-hidden bg-primary text-primary-foreground print:hidden"
+      className="hero-vintage relative overflow-hidden bg-primary text-primary-foreground print:hidden"
     >
       {/* Centered text block */}
-      <div className="mx-auto max-w-3xl px-4 pt-14 text-center sm:px-6 sm:pt-20">
-        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 px-3 py-1 text-xs font-500 uppercase tracking-wider text-primary-foreground/70">
+      <div className="mx-auto max-w-3xl px-4 pt-10 text-center sm:px-6 sm:pt-14">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 px-3 py-1 text-xs font-500 uppercase tracking-wider text-primary-foreground/70">
           <Pin className="h-3.5 w-3.5 text-accent" />
           <span>{t.hero.eyebrow}</span>
         </div>
 
-        <h1 className="font-display text-[3rem] leading-[0.92] font-500 sm:text-7xl md:text-[6rem]">
+        <h1 className="font-display text-[2.5rem] leading-[0.96] font-500 sm:text-6xl md:text-7xl">
           <span className="block">{t.hero.title}</span>
           <span className="block italic text-accent">{t.hero.titleAmp}</span>
           <span className="block">{t.hero.title2}</span>
         </h1>
 
-        <p className="mx-auto mt-6 max-w-lg font-sans text-base text-primary-foreground/75 sm:text-lg">
+        <p className="mx-auto mt-5 max-w-lg font-sans text-base text-primary-foreground/75 sm:text-lg">
           {t.hero.tagline}
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <a
             href="#menu"
             className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground px-5 py-2.5 text-sm font-500 text-primary hover:bg-primary-foreground/90 transition-colors"
@@ -278,8 +278,8 @@ function Hero({
       </div>
 
       {/* Big photo flanked by ingredient-style spec boxes, like Scandibakes */}
-      <div className="mx-auto max-w-5xl px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-16">
-        <div className="grid items-center gap-4 sm:grid-cols-[9rem_1fr_9rem] sm:gap-6">
+      <div className="mx-auto max-w-5xl px-4 pb-12 pt-9 sm:px-6 sm:pb-16 sm:pt-12">
+        <div className="grid items-center gap-4 sm:grid-cols-[8rem_1fr_8rem] sm:gap-5">
           {/* Left spec box (desktop only) */}
           <div className="hidden rounded-lg border border-primary-foreground/15 bg-primary-foreground/5 p-4 text-xs text-primary-foreground/70 sm:block">
             <div className="mb-2 font-600 uppercase tracking-wide text-primary-foreground/90">
@@ -292,7 +292,7 @@ function Hero({
             </ul>
           </div>
 
-          <HeroPhoto />
+          <HeroPhoto lang={lang} />
 
           {/* Right spec box (desktop only) */}
           <div className="hidden rounded-lg border border-primary-foreground/15 bg-primary-foreground/5 p-4 text-xs text-primary-foreground/70 sm:block">
@@ -321,7 +321,7 @@ function Hero({
       </div>
 
       {/* Decorative bottom divider, transitioning into the cream content below */}
-      <div className="mx-auto flex max-w-6xl items-center justify-center gap-4 px-4 pb-6">
+      <div className="mx-auto flex max-w-6xl items-center justify-center gap-4 px-4 pb-5">
         <div className="h-px flex-1 bg-primary-foreground/15" />
         <StarDivider className="h-4 w-4 text-accent" />
         <div className="h-px flex-1 bg-primary-foreground/15" />
@@ -331,10 +331,10 @@ function Hero({
 }
 
 /* ---------- Hero photo: large rectangular product shot (Scandibakes-style) ---------- */
-function HeroPhoto() {
+function HeroPhoto({ lang }: { lang: Lang }) {
   return (
-    <div className="relative mx-auto w-full max-w-2xl">
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-primary-foreground/15 shadow-2xl sm:aspect-[16/10]">
+    <div className="hero-photo-frame relative mx-auto w-full max-w-md">
+      <div className="relative aspect-video overflow-hidden rounded-sm border-[4px] border-card shadow-2xl">
         <Image
           src={HERO_PHOTO_URL}
           alt="Stack of fluffy pancakes with maple syrup and butter"
@@ -353,25 +353,48 @@ function HeroPhoto() {
           aria-hidden
         />
       </div>
+      <div className="hero-photo-stamp" aria-hidden="true">
+        <StarDivider className="h-4 w-4" />
+        <span>{lang === "en" ? "Made fresh" : "Fait maison"}</span>
+      </div>
       {/* Floating coffee cup badge */}
-      <div className="absolute -bottom-4 -right-3 h-14 w-14 rounded-full bg-card border border-border flex items-center justify-center shadow-md animate-float-slow">
-        <CoffeeCup className="h-7 w-7 text-accent" />
+      <div className="absolute -bottom-3 -right-2 h-11 w-11 rounded-full bg-card border border-border flex items-center justify-center shadow-md animate-float-slow">
+        <CoffeeCup className="h-5 w-5 text-accent" />
       </div>
       {/* Floating mint sprig badge */}
       <div
-        className="absolute -top-4 -left-3 h-12 w-12 rounded-full bg-card border border-border flex items-center justify-center shadow-md animate-float-slow"
+        className="absolute -top-3 -left-2 h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center shadow-md animate-float-slow"
         style={{ animationDelay: "1.5s" }}
       >
-        <MintSprig className="h-6 w-6 text-tertiary" />
+        <MintSprig className="h-5 w-5 text-tertiary" />
       </div>
     </div>
   );
 }
 
 /* ---------- Story section ---------- */
-function Story({ t }: { t: (typeof strings)["fr"] }) {
+function Story({
+  t,
+  settings,
+  lang,
+}: {
+  t: Translation;
+  settings: SiteSettingsDTO;
+  lang: Lang;
+}) {
+  const title =
+    (lang === "en" ? settings?.storyTitleEn : settings?.storyTitleFr) ||
+    t.story.title;
+  const body1 =
+    (lang === "en" ? settings?.storyBodyEn1 : settings?.storyBodyFr1) ||
+    t.story.body_p1;
+  const body2 =
+    (lang === "en" ? settings?.storyBodyEn2 : settings?.storyBodyFr2) ||
+    t.story.body_p2;
+  const photoUrl = settings?.storyPhotoUrl || STORY_PHOTO_URL;
+
   return (
-    <section id="story" className="border-b border-border/60 py-16 sm:py-24 print:hidden">
+    <section id="story" className="border-b border-border/60 py-12 sm:py-16 print:hidden">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* Section label */}
         <div className="mb-3 flex items-center gap-3 text-accent">
@@ -385,13 +408,13 @@ function Story({ t }: { t: (typeof strings)["fr"] }) {
           {/* Left: title + body */}
           <div className="md:col-span-7">
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-500 text-primary leading-tight">
-              {t.story.title}
+              {title}
             </h2>
             <p className="mt-6 text-base text-foreground/80 leading-relaxed sm:text-lg">
-              {t.story.body_p1}
+              {body1}
             </p>
             <p className="mt-4 text-base text-foreground/80 leading-relaxed sm:text-lg">
-              {t.story.body_p2}
+              {body2}
             </p>
 
             {/* Stats row */}
@@ -417,14 +440,15 @@ function Story({ t }: { t: (typeof strings)["fr"] }) {
           {/* Right: Real bakery interior photo with paper-frame */}
           <div className="md:col-span-5">
             <div className="relative">
-              <div className="paper-card overflow-hidden rounded-md border border-border bg-card p-2 sm:p-3 rotate-[-1deg]">
+              <div className="story-photo-mat paper-card overflow-hidden rounded-md border border-border bg-card p-2 sm:p-3 rotate-[-1deg]">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-sm">
                   <Image
-                    src={STORY_PHOTO_URL}
+                    src={photoUrl}
                     alt="Cozy bakery cafe interior with morning light"
                     fill
                     sizes="(max-width: 768px) 100vw, 28rem"
                     className="object-cover"
+                    unoptimized={photoUrl.startsWith("data:")}
                   />
                   <div
                     className="absolute inset-0 mix-blend-multiply opacity-10"
@@ -457,7 +481,7 @@ function Menu({
   categories,
   lang,
 }: {
-  t: (typeof strings)["fr"];
+  t: Translation;
   items: MenuItemDTO[];
   categories: MenuCategoryDTO[];
   lang: Lang;
@@ -480,9 +504,13 @@ function Menu({
       case "waffles":
         return <Waffle className="h-6 w-6" />;
       case "brunch":
+      case "drinks":
         return <CoffeeCup className="h-6 w-6" />;
       case "bakery":
         return <Wheat className="h-6 w-6" />;
+      case "add-ons":
+      case "toppings":
+        return <Whisk className="h-6 w-6" />;
       default:
         // For owner-added categories (e.g. "smoothies", "salads") use a neutral icon
         return <ForkKnife className="h-6 w-6" />;
@@ -492,7 +520,7 @@ function Menu({
   return (
     <section
       id="menu"
-      className="print-menu border-b border-border/60 bg-card/30 py-16 sm:py-24"
+      className="print-menu border-b border-border/60 bg-card/30 py-12 sm:py-16"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* Header */}
@@ -519,10 +547,10 @@ function Menu({
         {/* Menu groups — one horizontal drag-scroll row per DB category */}
         {grouped.length === 0 ? (
           <p className="text-sm italic text-muted-foreground">
-            Aucune catégorie de menu pour le moment. Ouvrez l'admin (Shift+A) pour en ajouter.
+            {lang === "en" ? "Menu coming soon." : "Le menu sera bientôt disponible."}
           </p>
         ) : (
-          <div className="space-y-14">
+          <div className="space-y-11">
             {grouped.map((g) => (
               <div key={g.cat} className="print-category">
                 {/* Category header */}
@@ -544,11 +572,34 @@ function Menu({
                   )}
                 </div>
 
+                {g.cat === "bakery" && (
+                  <p className="mb-4 text-sm text-muted-foreground">
+                    {lang === "en"
+                      ? "Bakery orders require a deposit. House specials need 24 hours' notice for afternoon pickup."
+                      : "Les commandes pâtissières nécessitent un acompte. Les spécialités maison se commandent 24 h à l'avance pour un retrait l'après-midi."}
+                  </p>
+                )}
+
                 {g.items.length === 0 ? (
                   <p className="text-xs italic text-muted-foreground">
                     (Pas encore d'items dans cette catégorie — ouvrez l'admin pour en ajouter.)
                   </p>
                 ) : (
+                  g.cat === "add-ons" || g.cat === "toppings" ? (
+                    <ul className="grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {g.items.map((item) => (
+                        <li key={item.id} className="flex items-baseline gap-2 border-b border-border/50 pb-2">
+                          <span className="font-display text-sm text-primary sm:text-base">
+                            {lang === "en" ? item.nameEn : item.nameFr}
+                          </span>
+                          <span className="divider-dotted min-w-4 flex-1" />
+                          <span className="num-vintage text-sm text-accent">
+                            {item.price} MAD
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
                   <>
                     {/* Horizontal drag-scroll cards (screen) */}
                     <div
@@ -566,6 +617,7 @@ function Menu({
                       ))}
                     </ul>
                   </>
+                  )
                 )}
               </div>
             ))}
@@ -586,15 +638,16 @@ function MenuCard({ item, lang }: { item: MenuItemDTO; lang: Lang }) {
   const name = lang === "en" ? item.nameEn : item.nameFr;
   const desc = lang === "en" ? item.descEn : item.descFr;
   return (
-    <div className="group w-40 shrink-0 snap-start sm:w-48">
-      <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-card">
+    <div className="menu-photo-card group w-36 shrink-0 snap-start sm:w-44">
+      <div className="relative aspect-square overflow-hidden rounded-sm border border-border bg-card p-1">
         {item.photoUrl ? (
           <Image
             src={item.photoUrl}
             alt={name}
             fill
             sizes="192px"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            unoptimized={item.photoUrl.startsWith("data:")}
           />
         ) : (
           <div className="flex h-full items-center justify-center text-muted-foreground">
@@ -648,6 +701,7 @@ function MenuRow({ item, lang }: { item: MenuItemDTO; lang: Lang }) {
             fill
             sizes="56px"
             className="object-cover"
+            unoptimized={item.photoUrl.startsWith("data:")}
           />
         </div>
       )}
@@ -680,7 +734,7 @@ function Gallery({
   items,
   lang,
 }: {
-  t: (typeof strings)["fr"];
+  t: Translation;
   items: MenuItemDTO[];
   lang: Lang;
 }) {
@@ -693,7 +747,7 @@ function Gallery({
     small: 3,
   };
   const tiles = [...items]
-    .filter((i) => i.photoUrl)
+    .filter((i) => i.photoUrl && i.showInGallery)
     .sort(
       (a, b) =>
         (priorityOrder[a.photoSize] ?? 4) - (priorityOrder[b.photoSize] ?? 4)
@@ -704,11 +758,10 @@ function Gallery({
   const spanFor = (size: PhotoSize): string => {
     switch (size) {
       case "feature":
-        return "col-span-2 row-span-2";
+        return "col-span-2";
       case "large":
-        return "col-span-2 md:row-span-1";
+        return "col-span-2";
       case "medium":
-        return "col-span-1 md:row-span-1";
       case "small":
       default:
         return "col-span-1";
@@ -716,7 +769,7 @@ function Gallery({
   };
 
   return (
-    <section id="gallery" className="border-b border-border/60 py-16 sm:py-24 print:hidden">
+    <section id="gallery" className="border-b border-border/60 py-12 sm:py-16 print:hidden">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mb-3 flex items-center gap-3 text-accent">
           <MintSprig className="h-5 w-5" />
@@ -731,21 +784,23 @@ function Gallery({
           {t.gallery.subtitle}
         </p>
 
+        {/* Decorative divider, matching the Menu section */}
+        <div className="my-10 flex items-center justify-center gap-3">
+          <div className="divider-dotted w-24" />
+          <ZelligeStar className="h-5 w-5 text-accent/70" />
+          <div className="divider-dotted w-24" />
+        </div>
+
         {/* Editorial grid — span driven by each item's photoSize */}
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 md:auto-rows-[200px]">
-          {tiles.map((item, i) => {
+        {tiles.length > 0 ? (
+          <div className="mt-8 grid grid-cols-2 auto-rows-[132px] gap-3 sm:auto-rows-[152px] sm:gap-4 md:grid-cols-4 md:auto-rows-[170px] lg:grid-cols-6">
+            {tiles.map((item) => {
             const name = lang === "en" ? item.nameEn : item.nameFr;
             const span = spanFor(item.photoSize);
-            // If no items have feature/large sizes, make the first tile big anyway
-            // so the gallery always has visual hierarchy.
-            const finalSpan =
-              i === 0 && item.photoSize !== "feature"
-                ? "col-span-2 row-span-2"
-                : span;
             return (
               <figure
                 key={item.id}
-                className={`paper-card group relative overflow-hidden rounded-md border border-border bg-card min-h-[200px] ${finalSpan}`}
+                className={`paper-card group relative min-h-0 overflow-hidden rounded-md border border-border bg-card ${span}`}
               >
                 {item.photoUrl ? (
                   <Image
@@ -754,6 +809,7 @@ function Gallery({
                     fill
                     sizes="(max-width: 768px) 50vw, 25vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    unoptimized={item.photoUrl.startsWith("data:")}
                   />
                 ) : (
                   <div className="absolute inset-0 h-full w-full bg-muted" />
@@ -778,17 +834,22 @@ function Gallery({
                 </figcaption>
               </figure>
             );
-          })}
-        </div>
+            })}
+          </div>
+        ) : (
+          <p className="mt-8 text-sm italic text-muted-foreground">
+            {lang === "en" ? "Gallery photos will appear here soon." : "Les photos de la galerie apparaîtront ici bientôt."}
+          </p>
+        )}
       </div>
     </section>
   );
 }
 
 /* ---------- Find Us section ---------- */
-function FindUs({ t }: { t: (typeof strings)["fr"] }) {
+function FindUs({ t }: { t: Translation }) {
   return (
-    <section id="findus" className="border-b border-border/60 py-16 sm:py-24 print:hidden">
+    <section id="findus" className="border-b border-border/60 py-12 sm:py-16 print:hidden">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mb-3 flex items-center gap-3 text-accent">
           <Pin className="h-5 w-5" />
@@ -800,7 +861,14 @@ function FindUs({ t }: { t: (typeof strings)["fr"] }) {
           {t.findus.title}
         </h2>
 
-        <div className="mt-10 grid gap-8 md:grid-cols-2 md:gap-12">
+        {/* Decorative divider, matching the Menu section */}
+        <div className="my-10 flex items-center justify-center gap-3">
+          <div className="divider-dotted w-24" />
+          <ZelligeStar className="h-5 w-5 text-accent/70" />
+          <div className="divider-dotted w-24" />
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-2 md:gap-12">
           {/* Left: Info card */}
           <div className="paper-card rounded-md border border-border bg-card p-6 sm:p-8">
             {/* Address */}
@@ -897,7 +965,7 @@ function CtaBanner({
   t,
   lang,
 }: {
-  t: (typeof strings)["fr"];
+  t: Translation;
   lang: Lang;
 }) {
   return (
@@ -969,10 +1037,8 @@ function CtaIllustration() {
 /* ---------- Footer ---------- */
 function Footer({
   t,
-  onOpenAdmin,
 }: {
-  t: (typeof strings)["fr"];
-  onOpenAdmin: () => void;
+  t: Translation;
 }) {
   return (
     <footer className="bg-background print:hidden">
@@ -990,16 +1056,16 @@ function Footer({
         <div className="grid gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="flex items-baseline gap-1.5">
-              <PancakeStack className="h-5 w-5 text-accent" />
-              <span className="font-display text-xl font-600 text-primary">
-                Pancakes
-              </span>
-              <span className="font-display text-xl italic text-muted-foreground">
-                &amp;
-              </span>
-              <span className="font-display text-xl font-600 text-primary">
-                Wafflez
+            <div className="flex items-center gap-3">
+              <Image
+                src="/pancakes-wafflez-logo.jpg"
+                alt=""
+                width={48}
+                height={48}
+                className="h-10 w-10 rounded-full border border-secondary bg-card object-cover"
+              />
+              <span className="font-display text-lg font-600 text-primary">
+                Pancakes <span className="italic text-muted-foreground">&amp;</span> Wafflez
               </span>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">{t.footer.tagline}</p>
@@ -1047,17 +1113,7 @@ function Footer({
             <span>© {new Date().getFullYear()} Pancakes &amp; Wafflez.</span>
             <span>{t.footer.rights}</span>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Visible Admin link — owner clicks this, types the token to unlock.
-                The token is what protects the menu, not the button visibility. */}
-            <button
-              onClick={onOpenAdmin}
-              className="text-xs text-muted-foreground hover:text-accent transition-colors underline-offset-2 hover:underline"
-              aria-label="Open admin panel"
-              title="Open admin (Shift + A)"
-            >
-              Admin
-            </button>
+          <div className="flex items-center gap-1.5">
             <div className="flex items-center gap-1.5">
               <span>{t.footer.made_with}</span>
               <Heart className="h-3.5 w-3.5 text-accent" />
@@ -1075,9 +1131,9 @@ function Footer({
    ============================================================ */
 export default function Page() {
   const [lang, setLang] = React.useState<Lang>("fr");
-  const [adminOpen, setAdminOpen] = React.useState(false);
   const t = strings[lang];
   const { items, categories, isLoadingItems } = useMenu();
+  const { settings } = useSettings();
 
   // Sync html lang attribute on change (no more dir=rtl — EN is LTR like FR)
   React.useEffect(() => {
@@ -1086,43 +1142,18 @@ export default function Page() {
     }
   }, [lang, t.meta.htmlLang]);
 
-  // Keyboard shortcut: Shift+A opens admin (faster than scrolling to footer)
-  React.useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.shiftKey && (e.key === "A" || e.key === "a")) {
-        // Don't trigger if user is typing in an input/textarea
-        const target = e.target as HTMLElement | null;
-        if (
-          target &&
-          (target.tagName === "INPUT" ||
-            target.tagName === "TEXTAREA" ||
-            target.isContentEditable)
-        ) {
-          return;
-        }
-        e.preventDefault();
-        setAdminOpen(true);
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
   return (
     <div className="flex min-h-screen flex-col" data-lang={lang}>
       <Header lang={lang} setLang={setLang} t={t} />
       <main className="flex-1">
         <Hero t={t} lang={lang} />
-        <Story t={t} />
+        <Story t={t} settings={settings} lang={lang} />
         <Menu t={t} items={items} categories={categories} lang={lang} />
         <Gallery t={t} items={items} lang={lang} />
         <FindUs t={t} />
         <CtaBanner t={t} lang={lang} />
       </main>
-      <Footer t={t} onOpenAdmin={() => setAdminOpen(true)} />
-
-      {/* Admin Sheet — opens from footer "Admin" link OR Shift+A keyboard shortcut */}
-      <AdminMenuSheet open={adminOpen} onOpenChange={setAdminOpen} />
+      <Footer t={t} />
 
       {/* Tiny loading veil while DB is fetching on first paint */}
       {isLoadingItems && items.length === 0 && (

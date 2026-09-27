@@ -15,7 +15,6 @@
 import { PrismaClient } from "@prisma/client";
 
 declare global {
-  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 
@@ -42,7 +41,7 @@ type Seed = {
   descFr: string;
   descEn: string;
   price: number;
-  photoUrl: string;
+  photoUrl: string | null;
   photoSize: "small" | "medium" | "large" | "feature";
 };
 
@@ -53,8 +52,10 @@ const categories: SeedCategory[] = [
   { key: "brownies", labelFr: "Brownies", labelEn: "Brownies", displayOrder: 4 },
   { key: "savory", labelFr: "Salé", labelEn: "Savory", displayOrder: 5 },
   { key: "brunch", labelFr: "Brunch", labelEn: "Brunch", displayOrder: 6 },
-  { key: "drinks", labelFr: "Boissons", labelEn: "Drinks", displayOrder: 7 },
-  { key: "bakery", labelFr: "Coin Pâtisserie", labelEn: "Bakery Corner", displayOrder: 8 },
+  { key: "add-ons", labelFr: "Suppléments", labelEn: "Add Ons", displayOrder: 7 },
+  { key: "drinks", labelFr: "Boissons", labelEn: "Drinks", displayOrder: 8 },
+  { key: "bakery", labelFr: "Coin Pâtisserie", labelEn: "Bakery Corner", displayOrder: 9 },
+  { key: "toppings", labelFr: "Garnitures", labelEn: "Toppings", displayOrder: 10 },
 ];
 
 const PANCAKE_PHOTOS = [
@@ -118,8 +119,8 @@ const menu: Seed[] = [
   { category: "savory", order: 6, nameFr: "Melty Toastie (Nouveau)", nameEn: "Melty Toastie (New)", descFr: "Pain au levain, tomates cerises rôties, poivrons grillés, dinde et mozzarella fondue", descEn: "Sourdough bread, baked cherry tomatoes, grilled peppers, turkey, melted mozzarella", price: 59, photoUrl: pick(BRUNCH_PHOTOS, 0), photoSize: "small" },
 
   // ============ BRUNCH (formulas) ============
-  { category: "brunch", order: 1, nameFr: "Tea Time (9h–17h50)", nameEn: "Tea Time (9am–5:50pm)", descFr: "Pancakes ou gaufres, thé ou café", descEn: "Pancakes or Waffles, Tea or Coffee", price: 59, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
-  { category: "brunch", order: 2, nameFr: "Formule Déjeuner (12h–15h, lun–ven)", nameEn: "Lunchtime (12–3pm, Mon–Fri)", descFr: "Pancakes/gaufres ou pain perdu/levain + boisson fraîche", descEn: "Pancakes or Waffles / French Toasts or Sourdough + Fresh Drink", price: 89, photoUrl: pick(BRUNCH_PHOTOS, 0), photoSize: "medium" },
+  { category: "brunch", order: 1, nameFr: "Tea Time (16h–17h30)", nameEn: "Tea Time (4–5:30pm)", descFr: "Pancakes ou gaufres, thé ou café", descEn: "Pancakes or Waffles, Tea or Coffee", price: 59, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
+  { category: "brunch", order: 2, nameFr: "Formule Déjeuner (12h30–15h, lun–ven)", nameEn: "Lunchtime (12:30–3pm, Mon–Fri)", descFr: "Pancakes/gaufres ou pain perdu/levain + boisson fraîche", descEn: "Pancakes or Waffles / French Toasts or Sourdough + Fresh Drink", price: 89, photoUrl: pick(BRUNCH_PHOTOS, 0), photoSize: "medium" },
   { category: "brunch", order: 3, nameFr: "OG Breakfast", nameEn: "OG Breakfast", descFr: "Pancakes, miel, œufs brouillés, bacon, tomates cerises rôties, champignons sautés + thé glacé ou café/thé", descEn: "Pancakes, honey, scrambled eggs, bacon, baked cherry tomatoes, sautéed mushrooms + Ice Tea or Coffee/Tea", price: 75, photoUrl: pick(BRUNCH_PHOTOS, 1), photoSize: "medium" },
   { category: "brunch", order: 4, nameFr: "White Lotus", nameEn: "White Lotus", descFr: "Gaufre de Liège au miel, œufs brouillés, pain au levain et cream cheese + thé glacé ou café/thé", descEn: "Liège Waffles & honey, scrambled eggs, cream cheese sourdough bread + Ice Tea or Coffee/Tea", price: 79, photoUrl: pick(WAFFLE_PHOTOS, 0), photoSize: "medium" },
   { category: "brunch", order: 5, nameFr: "Sorrento (Nouveau)", nameEn: "Sorrento (New)", descFr: "Tomates cerises rôties et mozzarella fondue sur pain au levain, œufs brouillés ; pancakes ou gaufres au miel + thé glacé ou café/thé", descEn: "Baked cherry tomatoes & melted mozzarella on sourdough, side of scrambled eggs; pancakes or waffles with honey + Ice Tea or Coffee/Tea", price: 89, photoUrl: pick(BRUNCH_PHOTOS, 0), photoSize: "small" },
@@ -130,22 +131,33 @@ const menu: Seed[] = [
   { category: "brunch", order: 10, nameFr: "Eggs Benedict (Spécial Week-end)", nameEn: "Eggs Benedict (Weekend Special)", descFr: "Toast brioché, cream cheese, pastrami, œuf poché et sauce hollandaise", descEn: "Brioche toast, cream cheese, pastrami, poached egg & hollandaise sauce", price: 65, photoUrl: pick(BRUNCH_PHOTOS, 1), photoSize: "medium" },
 
   // ============ DRINKS ============
-  { category: "drinks", order: 1, nameFr: "Nespresso", nameEn: "Nespresso", descFr: "", descEn: "", price: 15, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
-  { category: "drinks", order: 2, nameFr: "Latte", nameEn: "Latte", descFr: "", descEn: "", price: 20, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
-  { category: "drinks", order: 3, nameFr: "Caramel Macchiato", nameEn: "Caramel Macchiato", descFr: "", descEn: "", price: 25, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
-  { category: "drinks", order: 4, nameFr: "Chocolat Chaud", nameEn: "Hot Chocolate", descFr: "", descEn: "", price: 25, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
+  { category: "drinks", order: 1, nameFr: "Nespresso", nameEn: "Nespresso", descFr: "", descEn: "", price: 20, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
+  { category: "drinks", order: 2, nameFr: "Latte", nameEn: "Latte", descFr: "", descEn: "", price: 25, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
+  { category: "drinks", order: 3, nameFr: "Caramel Macchiato", nameEn: "Caramel Macchiato", descFr: "", descEn: "", price: 30, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
+  { category: "drinks", order: 4, nameFr: "Chocolat Chaud", nameEn: "Hot Chocolate", descFr: "", descEn: "", price: 50, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
   { category: "drinks", order: 5, nameFr: "Mocaccino", nameEn: "Mocaccino", descFr: "", descEn: "", price: 39, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
-  { category: "drinks", order: 6, nameFr: "Thé à la Menthe", nameEn: "Mint Tea", descFr: "", descEn: "", price: 20, photoUrl: pick(DRINK_PHOTOS, 0), photoSize: "feature" },
-  { category: "drinks", order: 7, nameFr: "Sélection de Thés", nameEn: "Tea Selection", descFr: "Earl Grey, vanille, fruits rouges, citron...", descEn: "Earl Grey, Vanilla, Berries, Lemon...", price: 25, photoUrl: pick(DRINK_PHOTOS, 0), photoSize: "small" },
-  { category: "drinks", order: 8, nameFr: "Eau Minérale", nameEn: "Mineral Water", descFr: "", descEn: "", price: 15, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
-  { category: "drinks", order: 9, nameFr: "Eau Gazeuse", nameEn: "Sparkling Water", descFr: "", descEn: "", price: 18, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
-  { category: "drinks", order: 10, nameFr: "Soda", nameEn: "Soda", descFr: "", descEn: "", price: 18, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
-  { category: "drinks", order: 11, nameFr: "Thé Glacé", nameEn: "Iced Tea", descFr: "", descEn: "", price: 25, photoUrl: pick(DRINK_PHOTOS, 0), photoSize: "small" },
-  { category: "drinks", order: 12, nameFr: "Iced Latte Mousse Triple Berry", nameEn: "Triple Berry Cold Foam Iced Latte", descFr: "", descEn: "", price: 39, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "medium" },
-  { category: "drinks", order: 13, nameFr: "Virgin Mojito", nameEn: "Virgin Mojito", descFr: "", descEn: "", price: 35, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
-  { category: "drinks", order: 14, nameFr: "Mojito Framboise-Citron Vert", nameEn: "Raspberry Lime Mojito", descFr: "", descEn: "", price: 35, photoUrl: pick(DRINK_PHOTOS, 0), photoSize: "small" },
-  { category: "drinks", order: 15, nameFr: "Iced Latte", nameEn: "Iced Latte", descFr: "", descEn: "", price: 30, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
-  { category: "drinks", order: 16, nameFr: "Iced Caramel Macchiato", nameEn: "Iced Caramel Macchiato", descFr: "", descEn: "", price: 35, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
+  { category: "drinks", order: 6, nameFr: "Affogato", nameEn: "Affogato", descFr: "Glace vanille et espresso", descEn: "Vanilla ice cream and espresso", price: 55, photoUrl: pick(DRINK_PHOTOS, 0), photoSize: "small" },
+  { category: "drinks", order: 7, nameFr: "Thé à la Menthe", nameEn: "Mint Tea", descFr: "", descEn: "", price: 20, photoUrl: pick(DRINK_PHOTOS, 0), photoSize: "feature" },
+  { category: "drinks", order: 8, nameFr: "Sélection de Thés", nameEn: "Tea Selection", descFr: "Earl Grey, vanille, fruits rouges, citron...", descEn: "Earl Grey, Vanilla, Berries, Lemon...", price: 25, photoUrl: pick(DRINK_PHOTOS, 0), photoSize: "small" },
+  { category: "drinks", order: 9, nameFr: "Eau Minérale", nameEn: "Mineral Water", descFr: "", descEn: "", price: 15, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
+  { category: "drinks", order: 10, nameFr: "Eau Gazeuse", nameEn: "Sparkling Water", descFr: "", descEn: "", price: 18, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
+  { category: "drinks", order: 11, nameFr: "Soda", nameEn: "Soda", descFr: "", descEn: "", price: 18, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
+  { category: "drinks", order: 12, nameFr: "Thé Glacé", nameEn: "Iced Tea", descFr: "", descEn: "", price: 25, photoUrl: pick(DRINK_PHOTOS, 0), photoSize: "small" },
+  { category: "drinks", order: 13, nameFr: "Iced Latte Mousse Triple Berry", nameEn: "Triple Berry Cold Foam Iced Latte", descFr: "", descEn: "", price: 39, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "medium" },
+  { category: "drinks", order: 14, nameFr: "Virgin Mojito", nameEn: "Virgin Mojito", descFr: "", descEn: "", price: 35, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
+  { category: "drinks", order: 15, nameFr: "Mojito Framboise-Citron Vert", nameEn: "Raspberry Lime Mojito", descFr: "", descEn: "", price: 35, photoUrl: pick(DRINK_PHOTOS, 0), photoSize: "small" },
+  { category: "drinks", order: 16, nameFr: "Iced Latte", nameEn: "Iced Latte", descFr: "", descEn: "", price: 30, photoUrl: pick(DRINK_PHOTOS, 1), photoSize: "small" },
+  { category: "drinks", order: 17, nameFr: "Iced Caramel Macchiato", nameEn: "Iced Caramel Macchiato", descFr: "", descEn: "", price: 35, photoUrl: pick(DRINK_PHOTOS, 2), photoSize: "small" },
+
+  // ============ BRUNCH ADD-ONS ==========
+  { category: "add-ons", order: 1, nameFr: "Saumon fumé", nameEn: "Smoked Salmon", descFr: "", descEn: "", price: 20, photoUrl: null, photoSize: "small" },
+  { category: "add-ons", order: 2, nameFr: "Œufs brouillés", nameEn: "Scrambled Eggs", descFr: "", descEn: "", price: 20, photoUrl: null, photoSize: "small" },
+  { category: "add-ons", order: 3, nameFr: "Cheddar", nameEn: "Cheddar", descFr: "", descEn: "", price: 10, photoUrl: null, photoSize: "small" },
+  { category: "add-ons", order: 4, nameFr: "Bacon", nameEn: "Bacon", descFr: "", descEn: "", price: 10, photoUrl: null, photoSize: "small" },
+  { category: "add-ons", order: 5, nameFr: "Chocolat", nameEn: "Chocolate", descFr: "", descEn: "", price: 10, photoUrl: null, photoSize: "small" },
+  { category: "add-ons", order: 6, nameFr: "Caramel au beurre salé", nameEn: "Salted Caramel", descFr: "", descEn: "", price: 10, photoUrl: null, photoSize: "small" },
+  { category: "add-ons", order: 7, nameFr: "Coulis de fruits rouges", nameEn: "Berry Coulis", descFr: "", descEn: "", price: 10, photoUrl: null, photoSize: "small" },
+  { category: "add-ons", order: 8, nameFr: "Chantilly", nameEn: "Chantilly", descFr: "", descEn: "", price: 15, photoUrl: null, photoSize: "small" },
 
   // ============ BAKERY CORNER (dépôt requis) ============
   { category: "bakery", order: 1, nameFr: "Sweet Grazing Box", nameEn: "Sweet Grazing Box", descFr: "4 gaufres de Liège, 6 cookies, mini-brownies, caramel au beurre salé", descEn: "4 Liège waffles, 6 cookies, brownie bites, salted caramel", price: 200, photoUrl: pick(BAKERY_PHOTOS, 0), photoSize: "feature" },
@@ -175,6 +187,13 @@ const menu: Seed[] = [
   { category: "bakery", order: 25, nameFr: "Cheesecake Caramel au Beurre Salé", nameEn: "Salted Caramel Cheesecake", descFr: "Commande 24h à l'avance", descEn: "24h advance order", price: 400, photoUrl: pick(BAKERY_PHOTOS, 2), photoSize: "small" },
   { category: "bakery", order: 26, nameFr: "Cheesecake Ganache Chocolat au Lait & Myrtilles", nameEn: "Milk Chocolate Ganache & Blueberries Cheesecake", descFr: "Commande 24h à l'avance", descEn: "24h advance order", price: 420, photoUrl: pick(BAKERY_PHOTOS, 3), photoSize: "small" },
   { category: "bakery", order: 27, nameFr: "Cheesecake Mangue Passion", nameEn: "Mangue Passion Cheesecake", descFr: "Commande 24h à l'avance", descEn: "24h advance order", price: 450, photoUrl: pick(BAKERY_PHOTOS, 0), photoSize: "feature" },
+
+  // ============ BAKERY TOPPINGS ==========
+  { category: "toppings", order: 1, nameFr: "Caramel au beurre salé", nameEn: "Salted Caramel", descFr: "", descEn: "", price: 10, photoUrl: null, photoSize: "small" },
+  { category: "toppings", order: 2, nameFr: "Coulis de fruits rouges", nameEn: "Berry Coulis", descFr: "", descEn: "", price: 10, photoUrl: null, photoSize: "small" },
+  { category: "toppings", order: 3, nameFr: "Chocolat", nameEn: "Chocolate", descFr: "", descEn: "", price: 10, photoUrl: null, photoSize: "small" },
+  { category: "toppings", order: 4, nameFr: "Crème chantilly", nameEn: "Whipped Cream", descFr: "", descEn: "", price: 15, photoUrl: null, photoSize: "small" },
+  { category: "toppings", order: 5, nameFr: "Fruits frais", nameEn: "Fresh Berries", descFr: "", descEn: "", price: 25, photoUrl: null, photoSize: "small" },
 ];
 
 async function main() {

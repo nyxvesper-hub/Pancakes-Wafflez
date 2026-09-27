@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   reactStrictMode: false,
   images: {
     // Allow the ZAI image-search CDN (where we got the food photos) + Unsplash + Pexels as fallbacks.

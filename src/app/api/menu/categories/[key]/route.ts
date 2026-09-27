@@ -11,22 +11,14 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "demo";
-
-function checkAuth(req: NextRequest) {
-  const auth = req.headers.get("authorization") || "";
-  const token = auth.replace(/^Bearer\s+/i, "");
-  return token === ADMIN_TOKEN;
-}
+import { adminAuthError } from "@/lib/admin-auth";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ key: string }> }
 ) {
-  if (!checkAuth(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = adminAuthError(req);
+  if (authError) return authError;
   const { key } = await params;
   const body = await req.json();
   const updated = await db.menuCategory.update({
@@ -46,9 +38,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ key: string }> }
 ) {
-  if (!checkAuth(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = adminAuthError(req);
+  if (authError) return authError;
   const { key } = await params;
   await db.menuCategory.delete({ where: { key } });
   return NextResponse.json({ ok: true });
